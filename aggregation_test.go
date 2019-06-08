@@ -5,6 +5,8 @@ package roaring
 import (
 	"fmt"
 	"testing"
+	"golang.org/x/sys/unix"
+	"os"
 )
 
 func testAggregations(t *testing.T,
@@ -313,4 +315,71 @@ func TestFastAggregations(t *testing.T) {
 
 func TestHeapAggregations(t *testing.T) {
 	testAggregations(t, nil, HeapOr, HeapXor)
+}
+
+
+
+type MappedRoaring struct {
+	bitmap *Bitmap
+	mappedContents   []byte
+}
+
+
+func MappedRoaringFromFile(filename string) (*MappedRoaring, error) {
+	file, err := os.OpenFile(filename, os.O_RDONLY, 0)
+
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	fileinfo, err := file.Stat()
+
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := unix.Mmap(int(file.Fd()), 0, int(fileinfo.Size()),
+		unix.PROT_READ, unix.MAP_PRIVATE)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to mmap on %s, got %s", filename, err)
+	}
+
+	bitmap := New()
+
+	_, err = bitmap.FromBuffer(bytes)
+	if err != nil {
+		return nil, fmt.Errorf("Encountered error in reading unit bitmap: %s", err)
+	}
+
+	return &MappedRoaring{bitmap: bitmap, mappedContents: bytes}, nil
+}
+
+func TestMappedAggregations(test *testing.T) {
+	var err error
+
+	a, _ := MappedRoaringFromFile("a")
+	b, _ := MappedRoaringFromFile("b")
+
+	union := Or(a.bitmap, b.bitmap)
+
+	union.GetCardinality()
+	union.ToArray()
+
+	err = unix.Munmap(a.mappedContents)
+	if err != nil {
+		test.Fatalf("error Munmaping a %s", err)
+	}
+
+	union.GetCardinality()
+	union.ToArray()
+	
+	err = unix.Munmap(b.mappedContents)
+	if err != nil {
+		test.Fatalf("error Munmaping b %s", err)
+	}
+
+	union.GetCardinality()
+	union.ToArray()
 }

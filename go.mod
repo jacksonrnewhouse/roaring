@@ -12,4 +12,5 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/tinylib/msgp v1.1.0
 	github.com/willf/bitset v1.1.10
+	golang.org/x/sys v0.0.0-20190608050228-5b15430b70e3
 )
