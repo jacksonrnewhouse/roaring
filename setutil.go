@@ -384,47 +384,15 @@ func localintersect2by2Cardinality(
 	k1 := 0
 	k2 := 0
 	pos := 0
-	s1 := set1[k1]
-	s2 := set2[k2]
-mainwhile:
-	for {
-		if s2 < s1 {
-			for {
-				k2++
-				if k2 == len(set2) {
-					break mainwhile
-				}
-				s2 = set2[k2]
-				if s2 >= s1 {
-					break
-				}
-			}
-		}
-		if s1 < s2 {
-			for {
-				k1++
-				if k1 == len(set1) {
-					break mainwhile
-				}
-				s1 = set1[k1]
-				if s1 >= s2 {
-					break
-				}
-			}
-
-		} else {
-			// (set2[k2] == set1[k1])
+	for k1 < len(set1) && k2 < len(set2) {
+		if set1[k1] == set2[k2] {
 			pos++
 			k1++
-			if k1 == len(set1) {
-				break
-			}
-			s1 = set1[k1]
 			k2++
-			if k2 == len(set2) {
-				break
-			}
-			s2 = set2[k2]
+		} else if set1[k1] == set2[k2] {
+			k1++
+		} else {
+			k2++
 		}
 	}
 	return pos
