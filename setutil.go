@@ -389,7 +389,7 @@ func localintersect2by2Cardinality(
 			pos++
 			k1++
 			k2++
-		} else if set1[k1] == set2[k2] {
+		} else if set1[k1] < set2[k2] {
 			k1++
 		} else {
 			k2++
