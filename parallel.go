@@ -17,13 +17,13 @@ type bitmapContainerKey struct {
 
 type multipleContainers struct {
 	key        uint16
-	containers []container
+	containers []Container
 	idx        int
 }
 
 type keyedContainer struct {
 	key       uint16
-	container container
+	container Container
 	idx       int
 }
 
@@ -34,7 +34,7 @@ func (h bitmapContainerHeap) Less(i, j int) bool { return h[i].key < h[j].key }
 func (h bitmapContainerHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 func (h *bitmapContainerHeap) Push(x interface{}) {
-	// Push and Pop use pointer receivers because they modify the slice's length,
+	// Push And Pop use pointer receivers because they modify the slice's length,
 	// not just its contents.
 	*h = append(*h, x.(bitmapContainerKey))
 }
@@ -51,7 +51,7 @@ func (h bitmapContainerHeap) Peek() bitmapContainerKey {
 	return h[0]
 }
 
-func (h *bitmapContainerHeap) popIncrementing() (key uint16, container container) {
+func (h *bitmapContainerHeap) popIncrementing() (key uint16, container Container) {
 	k := h.Peek()
 	key = k.key
 	container = k.bitmap.highlowcontainer.containers[k.idx]
@@ -72,7 +72,7 @@ func (h *bitmapContainerHeap) popIncrementing() (key uint16, container container
 	return
 }
 
-func (h *bitmapContainerHeap) Next(containers []container) multipleContainers {
+func (h *bitmapContainerHeap) Next(containers []Container) multipleContainers {
 	if h.Len() == 0 {
 		return multipleContainers{}
 	}
@@ -111,14 +111,14 @@ func newBitmapContainerHeap(bitmaps ...*Bitmap) bitmapContainerHeap {
 	return h
 }
 
-func repairAfterLazy(c container) container {
+func repairAfterLazy(c Container) Container {
 	switch t := c.(type) {
 	case *bitmapContainer:
 		if t.cardinality == invalidCardinality {
 			t.computeCardinality()
 		}
 
-		if t.getCardinality() <= arrayDefaultMaxSize {
+		if t.GetCardinality() <= arrayDefaultMaxSize {
 			return t.toArrayContainer()
 		} else if c.(*bitmapContainer).isFull() {
 			return newRunContainer16Range(0, MaxUint16)
@@ -128,7 +128,7 @@ func repairAfterLazy(c container) container {
 	return c
 }
 
-func toBitmapContainer(c container) container {
+func toBitmapContainer(c Container) Container {
 	switch t := c.(type) {
 	case *arrayContainer:
 		return t.toBitmapContainer()
@@ -144,13 +144,13 @@ func appenderRoutine(bitmapChan chan<- *Bitmap, resultChan <-chan keyedContainer
 	expectedKeys := -1
 	appendedKeys := 0
 	var keys []uint16
-	var containers []container
+	var containers []Container
 	for appendedKeys != expectedKeys {
 		select {
 		case item := <-resultChan:
 			if len(keys) <= item.idx {
 				keys = append(keys, make([]uint16, item.idx-len(keys)+1)...)
-				containers = append(containers, make([]container, item.idx-len(containers)+1)...)
+				containers = append(containers, make([]Container, item.idx-len(containers)+1)...)
 			}
 			keys[item.idx] = item.key
 			containers[item.idx] = item.container
@@ -163,14 +163,14 @@ func appenderRoutine(bitmapChan chan<- *Bitmap, resultChan <-chan keyedContainer
 	answer := &Bitmap{
 		roaringArray{
 			make([]uint16, 0, expectedKeys),
-			make([]container, 0, expectedKeys),
+			make([]Container, 0, expectedKeys),
 			make([]bool, 0, expectedKeys),
 			false,
 			nil,
 		},
 	}
 	for i := range keys {
-		if containers[i] != nil { // in case a resulting container was empty, see ParAnd function
+		if containers[i] != nil { // in case a resulting Container was empty, see ParAnd function
 			answer.highlowcontainer.appendContainer(keys[i], containers[i], false)
 		}
 	}
@@ -204,7 +204,7 @@ func ParHeapOr(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 
 	pool := sync.Pool{
 		New: func() interface{} {
-			return make([]container, 0, len(bitmaps))
+			return make([]Container, 0, len(bitmaps))
 		},
 	}
 
@@ -234,7 +234,7 @@ func ParHeapOr(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 
 	idx := 0
 	for h.Len() > 0 {
-		ck := h.Next(pool.Get().([]container))
+		ck := h.Next(pool.Get().([]Container))
 		if len(ck.containers) == 1 {
 			resultChan <- keyedContainer{
 				ck.key,
@@ -284,16 +284,16 @@ func ParAnd(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 	andFunc := func() {
 		// Assumes only structs with >=2 containers are passed
 		for input := range inputChan {
-			c := input.containers[0].and(input.containers[1])
+			c := input.containers[0].And(input.containers[1])
 			for _, next := range input.containers[2:] {
-				if c.getCardinality() == 0 {
+				if c.GetCardinality() == 0 {
 					break
 				}
 				c = c.iand(next)
 			}
 
-			// Send a nil explicitly if the result of the intersection is an empty container
-			if c.getCardinality() == 0 {
+			// Send a nil explicitly if the result of the intersection is an empty Container
+			if c.GetCardinality() == 0 {
 				c = nil
 			}
 
@@ -314,7 +314,7 @@ func ParAnd(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 
 	idx := 0
 	for h.Len() > 0 {
-		ck := h.Next(make([]container, 0, 4))
+		ck := h.Next(make([]Container, 0, 4))
 		if len(ck.containers) == bitmapCount {
 			ck.idx = idx
 			inputChan <- ck
@@ -361,7 +361,7 @@ func ParOr(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 	keyRange := hKey - lKey + 1
 	if keyRange == 1 {
 		// revert to FastOr. Since the key range is 0
-		// no container-level aggregation parallelism is achievable
+		// no Container-level aggregation parallelism is achievable
 		return FastOr(bitmaps...)
 	}
 
@@ -437,7 +437,7 @@ func ParOr(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 
 	result := Bitmap{
 		roaringArray{
-			containers:      make([]container, containerCount),
+			containers:      make([]Container, containerCount),
 			keys:            make([]uint16, containerCount),
 			needCopyOnWrite: make([]bool, containerCount),
 		},

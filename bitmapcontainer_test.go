@@ -61,7 +61,7 @@ func TestBitmapcontainerAndCardinality(t *testing.T) {
 		for r := 0; r <= 65535; r++ {
 			c1 := newRunContainer16Range(0, uint16(r))
 			c2 := newBitmapContainerwithRange(0, int(r))
-			So(r+1, ShouldEqual, c1.andCardinality(c2))
+			So(r+1, ShouldEqual, c1.AndCardinality(c2))
 		}
 	})
 }
@@ -104,7 +104,7 @@ func TestIssue181(t *testing.T) {
 
 func TestBitmapContainerReverseIterator(t *testing.T) {
 
-	Convey("RunReverseIterator16 unit tests for cur, next, hasNext, and remove should pass", t, func() {
+	Convey("RunReverseIterator16 unit tests for cur, next, hasNext, And remove should pass", t, func() {
 		{
 			bc := newBitmapContainer()
 			it := bc.getReverseIterator()
@@ -195,14 +195,14 @@ func TestBitmapOffset(t *testing.T) {
 	nums := []uint16{10, 100, 1000}
 	expected := make([]int, len(nums))
 	offtest := uint16(65000)
-	v := container(newBitmapContainer())
+	v := Container(newBitmapContainer())
 	for i, n := range nums {
 		v.iadd(n)
 		expected[i] = int(n) + int(offtest)
 	}
 	w := v.addOffset(offtest)
-	w0card := w[0].getCardinality()
-	w1card := w[1].getCardinality()
+	w0card := w[0].GetCardinality()
+	w1card := w[1].GetCardinality()
 	if w0card+w1card != 3 {
 		t.Errorf("Bogus cardinality.")
 	}

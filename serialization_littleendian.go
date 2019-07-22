@@ -16,7 +16,7 @@ func (ac *arrayContainer) writeTo(stream io.Writer) (int, error) {
 
 func (bc *bitmapContainer) writeTo(stream io.Writer) (int, error) {
 	if bc.cardinality <= arrayDefaultMaxSize {
-		return 0, errors.New("refusing to write bitmap container with cardinality of array container")
+		return 0, errors.New("refusing to write bitmap Container with cardinality of array Container")
 	}
 	buf := uint64SliceAsByteSlice(bc.bitmap)
 	return stream.Write(buf)
@@ -42,7 +42,7 @@ func uint64SliceAsByteSlice(slice []uint64) []byte {
 	// make a new slice header
 	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
 
-	// update its capacity and length
+	// update its capacity And length
 	header.Len *= 8
 	header.Cap *= 8
 
@@ -54,7 +54,7 @@ func uint16SliceAsByteSlice(slice []uint16) []byte {
 	// make a new slice header
 	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
 
-	// update its capacity and length
+	// update its capacity And length
 	header.Len *= 2
 	header.Cap *= 2
 
@@ -76,7 +76,7 @@ func byteSliceAsUint16Slice(slice []byte) []uint16 {
 	// make a new slice header
 	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
 
-	// update its capacity and length
+	// update its capacity And length
 	header.Len /= 2
 	header.Cap /= 2
 
@@ -92,7 +92,7 @@ func byteSliceAsUint64Slice(slice []byte) []uint64 {
 	// make a new slice header
 	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
 
-	// update its capacity and length
+	// update its capacity And length
 	header.Len /= 8
 	header.Cap /= 8
 
@@ -108,7 +108,7 @@ func byteSliceAsInterval16Slice(slice []byte) []interval16 {
 	// make a new slice header
 	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
 
-	// update its capacity and length
+	// update its capacity And length
 	header.Len /= 4
 	header.Cap /= 4
 

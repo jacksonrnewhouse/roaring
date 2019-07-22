@@ -7,7 +7,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func makeContainer(ss []uint16) container {
+func makeContainer(ss []uint16) Container {
 	c := newArrayContainer()
 	for _, s := range ss {
 		c.iadd(s)
@@ -15,7 +15,7 @@ func makeContainer(ss []uint16) container {
 	return c
 }
 
-func checkContent(c container, s []uint16) bool {
+func checkContent(c Container, s []uint16) bool {
 	si := c.getShortIterator()
 	ctr := 0
 	fail := false
@@ -105,8 +105,8 @@ func TestRoaringContainer(t *testing.T) {
 		}
 		c := a.toBitmapContainer()
 
-		So(a.getCardinality(), ShouldEqual, b.getCardinality())
-		So(c.getCardinality(), ShouldEqual, b.getCardinality())
+		So(a.GetCardinality(), ShouldEqual, b.GetCardinality())
+		So(c.GetCardinality(), ShouldEqual, b.GetCardinality())
 
 	})
 	Convey("inottest0", t, func() {
@@ -123,7 +123,7 @@ func TestRoaringContainer(t *testing.T) {
 	})
 
 	Convey("inotTest1", t, func() {
-		// Array container, range is complete
+		// Array Container, range is complete
 		content := []uint16{1, 3, 5, 7, 9}
 		//content := []uint16{1}
 		edge := 1 << 13

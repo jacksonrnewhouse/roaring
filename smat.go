@@ -51,7 +51,7 @@ You should see output like...
 
 ```
 
-Let it run, and if the # of crashers is > 0, check out the reports in
+Let it run, And if the # of crashers is > 0, check out the reports in
 the workdir where you should be able to find the panic goroutine stack
 traces.
 */
@@ -115,12 +115,12 @@ var smatActionMap = smat.ActionMap{
 	smat.ActionID('b'): smatAction(" removeBit", smatWrap(smatRemoveBit)),
 
 	smat.ActionID('o'): smatAction(" or", smatWrap(smatOr)),
-	smat.ActionID('a'): smatAction(" and", smatWrap(smatAnd)),
+	smat.ActionID('a'): smatAction(" And", smatWrap(smatAnd)),
 
 	smat.ActionID('#'): smatAction(" cardinality", smatWrap(smatCardinality)),
 
 	smat.ActionID('O'): smatAction(" orCardinality", smatWrap(smatOrCardinality)),
-	smat.ActionID('A'): smatAction(" andCardinality", smatWrap(smatAndCardinality)),
+	smat.ActionID('A'): smatAction(" AndCardinality", smatWrap(smatAndCardinality)),
 
 	smat.ActionID('c'): smatAction(" clear", smatWrap(smatClear)),
 	smat.ActionID('r'): smatAction(" runOptimize", smatWrap(smatRunOptimize)),

@@ -39,7 +39,7 @@ func (rb *Bitmap) FromBase64(str string) (int64, error) {
 
 // WriteTo writes a serialized version of this bitmap to stream.
 // The format is compatible with other RoaringBitmap
-// implementations (Java, C) and is documented here:
+// implementations (Java, C) And is documented here:
 // https://github.com/RoaringBitmap/RoaringFormatSpec
 func (rb *Bitmap) WriteTo(stream io.Writer) (int64, error) {
 	return rb.highlowcontainer.writeTo(stream)
@@ -53,9 +53,9 @@ func (rb *Bitmap) ToBytes() ([]byte, error) {
 
 // Deprecated: WriteToMsgpack writes a msgpack2/snappy-streaming compressed serialized
 // version of this bitmap to stream. The format is not
-// compatible with the WriteTo() format, and is
+// compatible with the WriteTo() format, And is
 // experimental: it may produce smaller on disk
-// footprint and/or be faster to read, depending
+// footprint And/or be faster to read, depending
 // on your content. Currently only the Go roaring
 // implementation supports this format.
 func (rb *Bitmap) WriteToMsgpack(stream io.Writer) (int64, error) {
@@ -64,7 +64,7 @@ func (rb *Bitmap) WriteToMsgpack(stream io.Writer) (int64, error) {
 
 // ReadFrom reads a serialized version of this bitmap from stream.
 // The format is compatible with other RoaringBitmap
-// implementations (Java, C) and is documented here:
+// implementations (Java, C) And is documented here:
 // https://github.com/RoaringBitmap/RoaringFormatSpec
 func (rb *Bitmap) ReadFrom(stream io.Reader) (int64, error) {
 	return rb.highlowcontainer.readFrom(stream)
@@ -88,7 +88,7 @@ func (rb *Bitmap) ReadFrom(stream io.Reader) (int64, error) {
 //
 // If buf becomes unavailable, then a bitmap created with
 // FromBuffer would be effectively broken. Furthermore, any
-// bitmap derived from this bitmap (e.g., via Or, And) might
+// bitmap derived from this bitmap (e.g., via BitmapOr, BitmapAnd) might
 // also be broken. Thus, before making buf unavailable, you should
 // call CloneCopyOnWriteContainers on all such bitmaps.
 //
@@ -154,7 +154,7 @@ func (rb *Bitmap) ToArray() []uint32 {
 		c := rb.highlowcontainer.getContainerAtIndex(pos)
 		pos++
 		c.fillLeastSignificant16bits(array, pos2, hs)
-		pos2 += c.getCardinality()
+		pos2 += c.GetCardinality()
 	}
 	return array
 }
@@ -398,7 +398,7 @@ func (rb *Bitmap) Contains(x uint32) bool {
 	return c != nil && c.contains(lowbits(x))
 }
 
-// ContainsInt returns true if the integer is contained in the bitmap (this is a convenience method, the parameter is casted to uint32 and Contains is called)
+// ContainsInt returns true if the integer is contained in the bitmap (this is a convenience method, the parameter is casted to uint32 And Contains is called)
 func (rb *Bitmap) ContainsInt(x int) bool {
 	return rb.Contains(uint32(x))
 }
@@ -412,7 +412,7 @@ func (rb *Bitmap) Equals(o interface{}) bool {
 	return false
 }
 
-// AddOffset adds the value 'offset' to each and every value in a bitmap, generating a new bitmap in the process
+// AddOffset adds the value 'offset' to each And every value in a bitmap, generating a new bitmap in the process
 func AddOffset(x *Bitmap, offset uint32) (answer *Bitmap) {
 	containerOffset := highbits(offset)
 	inOffset := lowbits(offset)
@@ -430,7 +430,7 @@ func AddOffset(x *Bitmap, offset uint32) (answer *Bitmap) {
 			key += containerOffset
 			c := x.highlowcontainer.getContainerAtIndex(pos)
 			offsetted := c.addOffset(inOffset)
-			if offsetted[0].getCardinality() > 0 {
+			if offsetted[0].GetCardinality() > 0 {
 				curSize := answer.highlowcontainer.size()
 				lastkey := uint16(0)
 				if curSize > 0 {
@@ -444,7 +444,7 @@ func AddOffset(x *Bitmap, offset uint32) (answer *Bitmap) {
 					answer.highlowcontainer.appendContainer(key, offsetted[0], false)
 				}
 			}
-			if offsetted[1].getCardinality() > 0 {
+			if offsetted[1].GetCardinality() > 0 {
 				answer.highlowcontainer.appendContainer(key+1, offsetted[1], false)
 			}
 		}
@@ -458,7 +458,7 @@ func (rb *Bitmap) Add(x uint32) {
 	ra := &rb.highlowcontainer
 	i := ra.getIndex(hb)
 	if i >= 0 {
-		var c container
+		var c Container
 		c = ra.getWritableContainerAtIndex(i).iaddReturnMinimized(lowbits(x))
 		rb.highlowcontainer.setContainerAtIndex(i, c)
 	} else {
@@ -467,12 +467,12 @@ func (rb *Bitmap) Add(x uint32) {
 	}
 }
 
-// add the integer x to the bitmap, return the container and its index
-func (rb *Bitmap) addwithptr(x uint32) (int, container) {
+// add the integer x to the bitmap, return the Container And its index
+func (rb *Bitmap) addwithptr(x uint32) (int, Container) {
 	hb := highbits(x)
 	ra := &rb.highlowcontainer
 	i := ra.getIndex(hb)
-	var c container
+	var c Container
 	if i >= 0 {
 		c = ra.getWritableContainerAtIndex(i).iaddReturnMinimized(lowbits(x))
 		rb.highlowcontainer.setContainerAtIndex(i, c)
@@ -484,17 +484,17 @@ func (rb *Bitmap) addwithptr(x uint32) (int, container) {
 	return -i - 1, c
 }
 
-// CheckedAdd adds the integer x to the bitmap and return true  if it was added (false if the integer was already present)
+// CheckedAdd adds the integer x to the bitmap And return true  if it was added (false if the integer was already present)
 func (rb *Bitmap) CheckedAdd(x uint32) bool {
 	// TODO: add unit tests for this method
 	hb := highbits(x)
 	i := rb.highlowcontainer.getIndex(hb)
 	if i >= 0 {
 		C := rb.highlowcontainer.getWritableContainerAtIndex(i)
-		oldcard := C.getCardinality()
+		oldcard := C.GetCardinality()
 		C = C.iaddReturnMinimized(lowbits(x))
 		rb.highlowcontainer.setContainerAtIndex(i, C)
-		return C.getCardinality() > oldcard
+		return C.GetCardinality() > oldcard
 	}
 	newac := newArrayContainer()
 	rb.highlowcontainer.insertNewKeyValueAt(-i-1, hb, newac.iaddReturnMinimized(lowbits(x)))
@@ -502,7 +502,7 @@ func (rb *Bitmap) CheckedAdd(x uint32) bool {
 
 }
 
-// AddInt adds the integer x to the bitmap (convenience method: the parameter is casted to uint32 and we call Add)
+// AddInt adds the integer x to the bitmap (convenience method: the parameter is casted to uint32 And we call Add)
 func (rb *Bitmap) AddInt(x int) {
 	rb.Add(uint32(x))
 }
@@ -514,27 +514,27 @@ func (rb *Bitmap) Remove(x uint32) {
 	if i >= 0 {
 		c := rb.highlowcontainer.getWritableContainerAtIndex(i).iremoveReturnMinimized(lowbits(x))
 		rb.highlowcontainer.setContainerAtIndex(i, c)
-		if rb.highlowcontainer.getContainerAtIndex(i).getCardinality() == 0 {
+		if rb.highlowcontainer.getContainerAtIndex(i).GetCardinality() == 0 {
 			rb.highlowcontainer.removeAtIndex(i)
 		}
 	}
 }
 
-// CheckedRemove removes the integer x from the bitmap and return true if the integer was effectively remove (and false if the integer was not present)
+// CheckedRemove removes the integer x from the bitmap And return true if the integer was effectively remove (And false if the integer was not present)
 func (rb *Bitmap) CheckedRemove(x uint32) bool {
 	// TODO: add unit tests for this method
 	hb := highbits(x)
 	i := rb.highlowcontainer.getIndex(hb)
 	if i >= 0 {
 		C := rb.highlowcontainer.getWritableContainerAtIndex(i)
-		oldcard := C.getCardinality()
+		oldcard := C.GetCardinality()
 		C = C.iremoveReturnMinimized(lowbits(x))
 		rb.highlowcontainer.setContainerAtIndex(i, C)
-		if rb.highlowcontainer.getContainerAtIndex(i).getCardinality() == 0 {
+		if rb.highlowcontainer.getContainerAtIndex(i).GetCardinality() == 0 {
 			rb.highlowcontainer.removeAtIndex(i)
 			return true
 		}
-		return C.getCardinality() < oldcard
+		return C.GetCardinality() < oldcard
 	}
 	return false
 
@@ -549,7 +549,7 @@ func (rb *Bitmap) IsEmpty() bool {
 func (rb *Bitmap) GetCardinality() uint64 {
 	size := uint64(0)
 	for _, c := range rb.highlowcontainer.containers {
-		size += uint64(c.getCardinality())
+		size += uint64(c.GetCardinality())
 	}
 	return size
 }
@@ -563,7 +563,7 @@ func (rb *Bitmap) Rank(x uint32) uint64 {
 			return size
 		}
 		if key < highbits(x) {
-			size += uint64(rb.highlowcontainer.getContainerAtIndex(i).getCardinality())
+			size += uint64(rb.highlowcontainer.getContainerAtIndex(i).GetCardinality())
 		} else {
 			return size + uint64(rb.highlowcontainer.getContainerAtIndex(i).rank(lowbits(x)))
 		}
@@ -580,8 +580,8 @@ func (rb *Bitmap) Select(x uint32) (uint32, error) {
 	remaining := x
 	for i := 0; i < rb.highlowcontainer.size(); i++ {
 		c := rb.highlowcontainer.getContainerAtIndex(i)
-		if remaining >= uint32(c.getCardinality()) {
-			remaining -= uint32(c.getCardinality())
+		if remaining >= uint32(c.GetCardinality()) {
+			remaining -= uint32(c.GetCardinality())
 		} else {
 			key := rb.highlowcontainer.getKeyAtIndex(i)
 			return uint32(key)<<16 + uint32(c.selectInt(uint16(remaining))), nil
@@ -590,7 +590,7 @@ func (rb *Bitmap) Select(x uint32) (uint32, error) {
 	return 0, fmt.Errorf("can't find %dth integer in a bitmap with only %d items", x, rb.GetCardinality())
 }
 
-// And computes the intersection between two bitmaps and stores the result in the current bitmap
+// BitmapAnd computes the intersection between two bitmaps And stores the result in the current bitmap
 func (rb *Bitmap) And(x2 *Bitmap) {
 	pos1 := 0
 	pos2 := 0
@@ -608,7 +608,7 @@ main:
 					c1 := rb.highlowcontainer.getWritableContainerAtIndex(pos1)
 					c2 := x2.highlowcontainer.getContainerAtIndex(pos2)
 					diff := c1.iand(c2)
-					if diff.getCardinality() > 0 {
+					if diff.GetCardinality() > 0 {
 						rb.highlowcontainer.replaceKeyAndContainerAtIndex(intersectionsize, s1, diff, false)
 						intersectionsize++
 					}
@@ -655,22 +655,22 @@ main:
 
 			for {
 				if s1 < s2 {
-					answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).getCardinality())
+					answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).GetCardinality())
 					pos1++
 					if pos1 == length1 {
 						break main
 					}
 					s1 = rb.highlowcontainer.getKeyAtIndex(pos1)
 				} else if s1 > s2 {
-					answer += uint64(x2.highlowcontainer.getContainerAtIndex(pos2).getCardinality())
+					answer += uint64(x2.highlowcontainer.getContainerAtIndex(pos2).GetCardinality())
 					pos2++
 					if pos2 == length2 {
 						break main
 					}
 					s2 = x2.highlowcontainer.getKeyAtIndex(pos2)
 				} else {
-					// TODO: could be faster if we did not have to materialize the container
-					answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).or(x2.highlowcontainer.getContainerAtIndex(pos2)).getCardinality())
+					// TODO: could be faster if we did not have to materialize the Container
+					answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).or(x2.highlowcontainer.getContainerAtIndex(pos2)).GetCardinality())
 					pos1++
 					pos2++
 					if (pos1 == length1) || (pos2 == length2) {
@@ -685,10 +685,10 @@ main:
 		}
 	}
 	for ; pos1 < length1; pos1++ {
-		answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).getCardinality())
+		answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).GetCardinality())
 	}
 	for ; pos2 < length2; pos2++ {
-		answer += uint64(x2.highlowcontainer.getContainerAtIndex(pos2).getCardinality())
+		answer += uint64(x2.highlowcontainer.getContainerAtIndex(pos2).GetCardinality())
 	}
 	return answer
 }
@@ -710,7 +710,7 @@ main:
 				if s1 == s2 {
 					c1 := rb.highlowcontainer.getContainerAtIndex(pos1)
 					c2 := x2.highlowcontainer.getContainerAtIndex(pos2)
-					answer += uint64(c1.andCardinality(c2))
+					answer += uint64(c1.AndCardinality(c2))
 					pos1++
 					pos2++
 					if (pos1 == length1) || (pos2 == length2) {
@@ -786,7 +786,7 @@ main:
 	return false
 }
 
-// Xor computes the symmetric difference between two bitmaps and stores the result in the current bitmap
+// Xor computes the symmetric difference between two bitmaps And stores the result in the current bitmap
 func (rb *Bitmap) Xor(x2 *Bitmap) {
 	pos1 := 0
 	pos2 := 0
@@ -810,7 +810,7 @@ func (rb *Bitmap) Xor(x2 *Bitmap) {
 			} else {
 				// TODO: couple be computed in-place for reduced memory usage
 				c := rb.highlowcontainer.getContainerAtIndex(pos1).xor(x2.highlowcontainer.getContainerAtIndex(pos2))
-				if c.getCardinality() > 0 {
+				if c.GetCardinality() > 0 {
 					rb.highlowcontainer.setContainerAtIndex(pos1, c)
 					pos1++
 				} else {
@@ -828,7 +828,7 @@ func (rb *Bitmap) Xor(x2 *Bitmap) {
 	}
 }
 
-// Or computes the union between two bitmaps and stores the result in the current bitmap
+// BitmapOr computes the union between two bitmaps And stores the result in the current bitmap
 func (rb *Bitmap) Or(x2 *Bitmap) {
 	pos1 := 0
 	pos2 := 0
@@ -872,7 +872,7 @@ main:
 	}
 }
 
-// AndNot computes the difference between two bitmaps and stores the result in the current bitmap
+// AndNot computes the difference between two bitmaps And stores the result in the current bitmap
 func (rb *Bitmap) AndNot(x2 *Bitmap) {
 	pos1 := 0
 	pos2 := 0
@@ -890,7 +890,7 @@ main:
 					c1 := rb.highlowcontainer.getWritableContainerAtIndex(pos1)
 					c2 := x2.highlowcontainer.getContainerAtIndex(pos2)
 					diff := c1.iandNot(c2)
-					if diff.getCardinality() > 0 {
+					if diff.GetCardinality() > 0 {
 						rb.highlowcontainer.replaceKeyAndContainerAtIndex(intersectionsize, s1, diff, false)
 						intersectionsize++
 					}
@@ -935,7 +935,7 @@ main:
 	rb.highlowcontainer.resize(intersectionsize)
 }
 
-// Or computes the union between two bitmaps and returns the result
+// BitmapOr computes the union between two bitmaps And returns the result
 func Or(x1, x2 *Bitmap) *Bitmap {
 	answer := NewBitmap()
 	pos1 := 0
@@ -983,7 +983,7 @@ main:
 	return answer
 }
 
-// And computes the intersection between two bitmaps and returns the result
+// BitmapAnd computes the intersection between two bitmaps And returns the result
 func And(x1, x2 *Bitmap) *Bitmap {
 	answer := NewBitmap()
 	pos1 := 0
@@ -997,9 +997,9 @@ main:
 		for {
 			if s1 == s2 {
 				C := x1.highlowcontainer.getContainerAtIndex(pos1)
-				C = C.and(x2.highlowcontainer.getContainerAtIndex(pos2))
+				C = C.And(x2.highlowcontainer.getContainerAtIndex(pos2))
 
-				if C.getCardinality() > 0 {
+				if C.GetCardinality() > 0 {
 					answer.highlowcontainer.appendContainer(s1, C, false)
 				}
 				pos1++
@@ -1027,7 +1027,7 @@ main:
 	return answer
 }
 
-// Xor computes the symmetric difference between two bitmaps and returns the result
+// Xor computes the symmetric difference between two bitmaps And returns the result
 func Xor(x1, x2 *Bitmap) *Bitmap {
 	answer := NewBitmap()
 	pos1 := 0
@@ -1046,7 +1046,7 @@ func Xor(x1, x2 *Bitmap) *Bitmap {
 				pos2++
 			} else {
 				c := x1.highlowcontainer.getContainerAtIndex(pos1).xor(x2.highlowcontainer.getContainerAtIndex(pos2))
-				if c.getCardinality() > 0 {
+				if c.GetCardinality() > 0 {
 					answer.highlowcontainer.appendContainer(s1, c, false)
 				}
 				pos1++
@@ -1064,7 +1064,7 @@ func Xor(x1, x2 *Bitmap) *Bitmap {
 	return answer
 }
 
-// AndNot computes the difference between two bitmaps and returns the result
+// AndNot computes the difference between two bitmaps And returns the result
 func AndNot(x1, x2 *Bitmap) *Bitmap {
 	answer := NewBitmap()
 	pos1 := 0
@@ -1088,8 +1088,8 @@ main:
 				} else if s1 == s2 {
 					c1 := x1.highlowcontainer.getContainerAtIndex(pos1)
 					c2 := x2.highlowcontainer.getContainerAtIndex(pos2)
-					diff := c1.andNot(c2)
-					if diff.getCardinality() > 0 {
+					diff := c1.AndNot(c2)
+					if diff.GetCardinality() > 0 {
 						answer.highlowcontainer.appendContainer(s1, diff, false)
 					}
 					pos1++
@@ -1142,9 +1142,9 @@ func BitmapOf(dat ...uint32) *Bitmap {
 	return ans
 }
 
-// Flip negates the bits in the given range (i.e., [rangeStart,rangeEnd)), any integer present in this range and in the bitmap is removed,
-// and any integer present in the range and not in the bitmap is added.
-// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed and meaningful to use [0,uint64(0x100000000)) as a range
+// Flip negates the bits in the given range (i.e., [rangeStart,rangeEnd)), any integer present in this range And in the bitmap is removed,
+// And any integer present in the range And not in the bitmap is added.
+// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed And meaningful to use [0,uint64(0x100000000)) as a range
 // while uint64(0x100000000) cannot be represented as a 32-bit value.
 func (rb *Bitmap) Flip(rangeStart, rangeEnd uint64) {
 
@@ -1179,7 +1179,7 @@ func (rb *Bitmap) Flip(rangeStart, rangeEnd uint64) {
 
 		if i >= 0 {
 			c := rb.highlowcontainer.getWritableContainerAtIndex(i).inot(int(containerStart), int(containerLast)+1)
-			if c.getCardinality() > 0 {
+			if c.GetCardinality() > 0 {
 				rb.highlowcontainer.setContainerAtIndex(i, c)
 			} else {
 				rb.highlowcontainer.removeAtIndex(i)
@@ -1197,7 +1197,7 @@ func (rb *Bitmap) FlipInt(rangeStart, rangeEnd int) {
 }
 
 // AddRange adds the integers in [rangeStart, rangeEnd) to the bitmap.
-// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed and meaningful to use [0,uint64(0x100000000)) as a range
+// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed And meaningful to use [0,uint64(0x100000000)) as a range
 // while uint64(0x100000000) cannot be represented as a 32-bit value.
 func (rb *Bitmap) AddRange(rangeStart, rangeEnd uint64) {
 	if rangeStart >= rangeEnd {
@@ -1235,7 +1235,7 @@ func (rb *Bitmap) AddRange(rangeStart, rangeEnd uint64) {
 }
 
 // RemoveRange removes the integers in [rangeStart, rangeEnd) from the bitmap.
-// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed and meaningful to use [0,uint64(0x100000000)) as a range
+// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed And meaningful to use [0,uint64(0x100000000)) as a range
 // while uint64(0x100000000) cannot be represented as a 32-bit value.
 func (rb *Bitmap) RemoveRange(rangeStart, rangeEnd uint64) {
 	if rangeStart >= rangeEnd {
@@ -1260,7 +1260,7 @@ func (rb *Bitmap) RemoveRange(rangeStart, rangeEnd uint64) {
 			return
 		}
 		c := rb.highlowcontainer.getWritableContainerAtIndex(i).iremoveRange(int(lbStart), int(lbLast+1))
-		if c.getCardinality() > 0 {
+		if c.GetCardinality() > 0 {
 			rb.highlowcontainer.setContainerAtIndex(i, c)
 		} else {
 			rb.highlowcontainer.removeAtIndex(i)
@@ -1273,7 +1273,7 @@ func (rb *Bitmap) RemoveRange(rangeStart, rangeEnd uint64) {
 	if ifirst >= 0 {
 		if lbStart != 0 {
 			c := rb.highlowcontainer.getWritableContainerAtIndex(ifirst).iremoveRange(int(lbStart), int(max+1))
-			if c.getCardinality() > 0 {
+			if c.GetCardinality() > 0 {
 				rb.highlowcontainer.setContainerAtIndex(ifirst, c)
 				ifirst++
 			}
@@ -1284,7 +1284,7 @@ func (rb *Bitmap) RemoveRange(rangeStart, rangeEnd uint64) {
 	if ilast >= 0 {
 		if lbLast != max {
 			c := rb.highlowcontainer.getWritableContainerAtIndex(ilast).iremoveRange(int(0), int(lbLast+1))
-			if c.getCardinality() > 0 {
+			if c.GetCardinality() > 0 {
 				rb.highlowcontainer.setContainerAtIndex(ilast, c)
 			} else {
 				ilast++
@@ -1298,10 +1298,10 @@ func (rb *Bitmap) RemoveRange(rangeStart, rangeEnd uint64) {
 	rb.highlowcontainer.removeIndexRange(ifirst, ilast)
 }
 
-// Flip negates the bits in the given range  (i.e., [rangeStart,rangeEnd)), any integer present in this range and in the bitmap is removed,
-// and any integer present in the range and not in the bitmap is added, a new bitmap is returned leaving
+// Flip negates the bits in the given range  (i.e., [rangeStart,rangeEnd)), any integer present in this range And in the bitmap is removed,
+// And any integer present in the range And not in the bitmap is added, a new bitmap is returned leaving
 // the current bitmap unchanged.
-// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed and meaningful to use [0,uint64(0x100000000)) as a range
+// The function uses 64-bit parameters even though a Bitmap stores 32-bit values because it is allowed And meaningful to use [0,uint64(0x100000000)) as a range
 // while uint64(0x100000000) cannot be represented as a 32-bit value.
 func Flip(bm *Bitmap, rangeStart, rangeEnd uint64) *Bitmap {
 	if rangeStart >= rangeEnd {
@@ -1340,7 +1340,7 @@ func Flip(bm *Bitmap, rangeStart, rangeEnd uint64) *Bitmap {
 
 		if i >= 0 {
 			c := bm.highlowcontainer.getContainerAtIndex(i).not(int(containerStart), int(containerLast)+1)
-			if c.getCardinality() > 0 {
+			if c.GetCardinality() > 0 {
 				answer.highlowcontainer.insertNewKeyValueAt(-j-1, uint16(hb), c)
 			}
 
@@ -1356,7 +1356,7 @@ func Flip(bm *Bitmap, rangeStart, rangeEnd uint64) *Bitmap {
 	return answer
 }
 
-// SetCopyOnWrite sets this bitmap to use copy-on-write so that copies are fast and memory conscious
+// SetCopyOnWrite sets this bitmap to use copy-on-write so that copies are fast And memory conscious
 // if the parameter is true, otherwise we leave the default where hard copies are made
 // (copy-on-write requires extra care in a threaded context).
 // Calling SetCopyOnWrite(true) on a bitmap created with FromBuffer is unsafe.
@@ -1376,7 +1376,7 @@ func (rb *Bitmap) GetCopyOnWrite() (val bool) {
 // calling FromBuffer.
 // More generally this function is useful if you call FromBuffer 
 // to construct a bitmap with a backing array buf
-// and then later discard the buf array. Note that you should call 
+// And then later discard the buf array. Note that you should call
 // CloneCopyOnWriteContainers on all bitmaps that were derived 
 // from the 'FromBuffer' bitmap since they map have dependencies
 // on the buf array as well.
@@ -1389,7 +1389,7 @@ func FlipInt(bm *Bitmap, rangeStart, rangeEnd int) *Bitmap {
 	return Flip(bm, uint64(rangeStart), uint64(rangeEnd))
 }
 
-// Statistics provides details on the container types in use.
+// Statistics provides details on the Container types in use.
 type Statistics struct {
 	Cardinality uint64
 	Containers  uint64
@@ -1407,26 +1407,26 @@ type Statistics struct {
 	RunContainerValues uint64
 }
 
-// Stats returns details on container type usage in a Statistics struct.
+// Stats returns details on Container type usage in a Statistics struct.
 func (rb *Bitmap) Stats() Statistics {
 	stats := Statistics{}
 	stats.Containers = uint64(len(rb.highlowcontainer.containers))
 	for _, c := range rb.highlowcontainer.containers {
-		stats.Cardinality += uint64(c.getCardinality())
+		stats.Cardinality += uint64(c.GetCardinality())
 
 		switch c.(type) {
 		case *arrayContainer:
 			stats.ArrayContainers++
 			stats.ArrayContainerBytes += uint64(c.getSizeInBytes())
-			stats.ArrayContainerValues += uint64(c.getCardinality())
+			stats.ArrayContainerValues += uint64(c.GetCardinality())
 		case *bitmapContainer:
 			stats.BitmapContainers++
 			stats.BitmapContainerBytes += uint64(c.getSizeInBytes())
-			stats.BitmapContainerValues += uint64(c.getCardinality())
+			stats.BitmapContainerValues += uint64(c.GetCardinality())
 		case *runContainer16:
 			stats.RunContainers++
 			stats.RunContainerBytes += uint64(c.getSizeInBytes())
-			stats.RunContainerValues += uint64(c.getCardinality())
+			stats.RunContainerValues += uint64(c.GetCardinality())
 		}
 	}
 	return stats

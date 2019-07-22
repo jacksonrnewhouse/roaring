@@ -56,7 +56,7 @@ func TestBase64_036(t *testing.T) {
 	}
 
 	if !rb.Equals(newrb) {
-		t.Errorf("comparing the base64 to and from failed cannot retrieve serialized version")
+		t.Errorf("comparing the base64 to And from failed cannot retrieve serialized version")
 	}
 }
 
@@ -268,7 +268,7 @@ func TestSerializationBasic2_041(t *testing.T) {
 
 func TestSerializationBasic3_042(t *testing.T) {
 
-	Convey("roaringarray.writeTo and .readFrom should serialize and unserialize when containing all 3 container types", t, func() {
+	Convey("roaringarray.writeTo And .readFrom should serialize And unserialize when containing all 3 Container types", t, func() {
 		rb := BitmapOf(1, 2, 3, 4, 5, 100, 1000, 10000, 100000, 1000000)
 		for i := 5000000; i < 5000000+2*(1<<16); i++ {
 			rb.AddInt(i)
@@ -285,7 +285,7 @@ func TestSerializationBasic3_042(t *testing.T) {
 			case *runContainer16:
 				rc = true
 			default:
-				panic(fmt.Errorf("Unrecognized container implementation: %T", cn))
+				panic(fmt.Errorf("Unrecognized Container implementation: %T", cn))
 			}
 		}
 		if !bc {
@@ -342,7 +342,7 @@ func TestGobcoding043(t *testing.T) {
 
 func TestSerializationRunContainerMsgpack028(t *testing.T) {
 
-	Convey("runContainer writeTo and readFrom should return logically equivalent containers", t, func() {
+	Convey("runContainer writeTo And readFrom should return logically equivalent containers", t, func() {
 		seed := int64(42)
 		rand.Seed(seed)
 
@@ -383,7 +383,7 @@ func TestSerializationRunContainerMsgpack028(t *testing.T) {
 					panic(err)
 				}
 
-				// and compare
+				// And compare
 				So(restored.equals(orig), ShouldBeTrue)
 
 			}
@@ -398,7 +398,7 @@ func TestSerializationRunContainerMsgpack028(t *testing.T) {
 
 func TestSerializationArrayOnly032(t *testing.T) {
 
-	Convey("arrayContainer writeTo and readFrom should return logically equivalent containers, so long as you pre-size the write target properly", t, func() {
+	Convey("arrayContainer writeTo And readFrom should return logically equivalent containers, so long as you pre-size the write target properly", t, func() {
 
 		seed := int64(42)
 		rand.Seed(seed)
@@ -430,7 +430,7 @@ func TestSerializationArrayOnly032(t *testing.T) {
 				panicOn(err)
 				// have to pre-size the array write-target properly
 				// by telling it the cardinality to read.
-				ac2 := newArrayContainerSize(int(ac.getCardinality()))
+				ac2 := newArrayContainerSize(int(ac.GetCardinality()))
 
 				_, err = ac2.readFrom(buf)
 				panicOn(err)
@@ -446,7 +446,7 @@ func TestSerializationArrayOnly032(t *testing.T) {
 
 func TestSerializationRunOnly033(t *testing.T) {
 
-	Convey("runContainer16 writeTo and readFrom should return logically equivalent containers", t, func() {
+	Convey("runContainer16 writeTo And readFrom should return logically equivalent containers", t, func() {
 
 		seed := int64(42)
 		rand.Seed(seed)
@@ -492,7 +492,7 @@ func TestSerializationRunOnly033(t *testing.T) {
 
 func TestSerializationBitmapOnly034(t *testing.T) {
 
-	Convey("bitmapContainer writeTo and readFrom should return logically equivalent containers", t, func() {
+	Convey("bitmapContainer writeTo And readFrom should return logically equivalent containers", t, func() {
 		seed := int64(42)
 		rand.Seed(seed)
 
@@ -537,7 +537,7 @@ func TestSerializationBitmapOnly034(t *testing.T) {
 
 func TestSerializationBasicMsgpack035(t *testing.T) {
 
-	Convey("roaringarray.writeToMsgpack and .readFromMsgpack should serialize and unserialize when containing all 3 container types", t, func() {
+	Convey("roaringarray.writeToMsgpack And .readFromMsgpack should serialize And unserialize when containing all 3 Container types", t, func() {
 		rb := BitmapOf(1, 2, 3, 4, 5, 100, 1000, 10000, 100000, 1000000)
 		for i := 5000000; i < 5000000+2*(1<<16); i++ {
 			rb.AddInt(i)
@@ -557,7 +557,7 @@ func TestSerializationBasicMsgpack035(t *testing.T) {
 				rc = true
 				So(cn.containerType(), ShouldEqual, run16Contype)
 			default:
-				panic(fmt.Errorf("Unrecognized container implementation: %T", cn))
+				panic(fmt.Errorf("Unrecognized Container implementation: %T", cn))
 			}
 		}
 		if !bc {

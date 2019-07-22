@@ -9,9 +9,9 @@ const (
 	arrayDefaultMaxSize        = 4096 // containers with 4096 or fewer integers should be array containers.
 	arrayLazyLowerBound        = 1024
 	maxCapacity                = 1 << 16
-	serialCookieNoRunContainer = 12346 // only arrays and bitmaps
+	serialCookieNoRunContainer = 12346 // only arrays And bitmaps
 	invalidCardinality         = -1
-	serialCookie               = 12347 // runs, arrays, and bitmaps
+	serialCookie               = 12347 // runs, arrays, And bitmaps
 	noOffsetThreshold          = 4
 
 	// MaxUint32 is the largest uint32 value.

@@ -59,7 +59,7 @@ func testAggregations(t *testing.T,
 		}
 	})
 
-	t.Run("empty and single elem bitmaps", func(t *testing.T) {
+	t.Run("empty And single elem bitmaps", func(t *testing.T) {
 		rb1 := NewBitmap()
 		rb2 := BitmapOf(1)
 

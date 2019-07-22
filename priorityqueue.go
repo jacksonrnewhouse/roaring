@@ -69,7 +69,7 @@ func (pq containerPriorityQueue) Less(i, j int) bool {
 	c1 := pq[i].value.highlowcontainer.getContainerAtIndex(pq[i].keyindex)
 	c2 := pq[j].value.highlowcontainer.getContainerAtIndex(pq[j].keyindex)
 
-	return c1.getCardinality() > c2.getCardinality()
+	return c1.GetCardinality() > c2.GetCardinality()
 }
 
 func (pq containerPriorityQueue) Swap(i, j int) {

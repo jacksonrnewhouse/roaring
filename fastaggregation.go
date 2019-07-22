@@ -4,7 +4,7 @@ import (
 	"container/heap"
 )
 
-// Or function that requires repairAfterLazy
+// BitmapOr function that requires repairAfterLazy
 func lazyOR(x1, x2 *Bitmap) *Bitmap {
 	answer := NewBitmap()
 	pos1 := 0
@@ -61,7 +61,7 @@ main:
 	return answer
 }
 
-// In-place Or function that requires repairAfterLazy
+// In-place BitmapOr function that requires repairAfterLazy
 func (x1 *Bitmap) lazyOR(x2 *Bitmap) *Bitmap {
 	pos1 := 0
 	pos2 := 0
@@ -128,7 +128,7 @@ func (x1 *Bitmap) repairAfterLazy() {
 			if c.(*bitmapContainer).cardinality == invalidCardinality {
 				c = x1.highlowcontainer.getWritableContainerAtIndex(pos)
 				c.(*bitmapContainer).computeCardinality()
-				if c.(*bitmapContainer).getCardinality() <= arrayDefaultMaxSize {
+				if c.(*bitmapContainer).GetCardinality() <= arrayDefaultMaxSize {
 					x1.highlowcontainer.setContainerAtIndex(pos, c.(*bitmapContainer).toArrayContainer())
 				} else if c.(*bitmapContainer).isFull() {
 					x1.highlowcontainer.setContainerAtIndex(pos, newRunContainer16Range(0, MaxUint16))
@@ -139,8 +139,8 @@ func (x1 *Bitmap) repairAfterLazy() {
 }
 
 // FastAnd computes the intersection between many bitmaps quickly
-// Compared to the And function, it can take many bitmaps as input, thus saving the trouble
-// of manually calling "And" many times.
+// Compared to the BitmapAnd function, it can take many bitmaps as input, thus saving the trouble
+// of manually calling "BitmapAnd" many times.
 func FastAnd(bitmaps ...*Bitmap) *Bitmap {
 	if len(bitmaps) == 0 {
 		return NewBitmap()
@@ -154,8 +154,8 @@ func FastAnd(bitmaps ...*Bitmap) *Bitmap {
 	return answer
 }
 
-// FastOr computes the union between many bitmaps quickly, as opposed to having to call Or repeatedly.
-// It might also be faster than calling Or repeatedly.
+// FastOr computes the union between many bitmaps quickly, as opposed to having to call BitmapOr repeatedly.
+// It might also be faster than calling BitmapOr repeatedly.
 func FastOr(bitmaps ...*Bitmap) *Bitmap {
 	if len(bitmaps) == 0 {
 		return NewBitmap()
@@ -172,7 +172,7 @@ func FastOr(bitmaps ...*Bitmap) *Bitmap {
 }
 
 // HeapOr computes the union between many bitmaps quickly using a heap.
-// It might be faster than calling Or repeatedly.
+// It might be faster than calling BitmapOr repeatedly.
 func HeapOr(bitmaps ...*Bitmap) *Bitmap {
 	if len(bitmaps) == 0 {
 		return NewBitmap()

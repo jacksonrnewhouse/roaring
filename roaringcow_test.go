@@ -569,7 +569,7 @@ func TestBitmapCOW(t *testing.T) {
 		for i := 200000; i < 400000; i += 14 {
 			rb2.AddInt(i)
 		}
-		//TODO: Bitmap.And(bm,bm2)
+		//TODO: Bitmap.BitmapAnd(bm,bm2)
 		andresult := And(rb, rb2)
 		off := And(rb2, rb)
 		So(andresult.Equals(off), ShouldEqual, true)
@@ -602,11 +602,11 @@ func TestBitmapCOW(t *testing.T) {
 		ac := newArrayContainer()
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, k+1)
+			So(ac.GetCardinality(), ShouldEqual, k+1)
 		}
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, 100)
+			So(ac.GetCardinality(), ShouldEqual, 100)
 		}
 	})
 
@@ -656,11 +656,11 @@ func TestBitmapCOW(t *testing.T) {
 		ac := newBitmapContainer()
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, k+1)
+			So(ac.GetCardinality(), ShouldEqual, k+1)
 		}
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, 100)
+			So(ac.GetCardinality(), ShouldEqual, 100)
 		}
 	})
 
@@ -968,7 +968,7 @@ func TestBitmapCOW(t *testing.T) {
 	})
 
 	Convey("flipTest7", t, func() {
-		// within 1 word, first container
+		// within 1 word, first Container
 		rb := NewBitmap()
 		rb.SetCopyOnWrite(true)
 		rb.Flip(650, 132000)
@@ -1338,9 +1338,9 @@ func TestBitmapCOW(t *testing.T) {
 		rr.SetCopyOnWrite(true)
 		rr2 := NewBitmap()
 		rr2.SetCopyOnWrite(true)
-		// For the first 65536: rr2 has a bitmap container, and rr has
-		// an array container.
-		// We will check the union between a BitmapCintainer and an
+		// For the first 65536: rr2 has a bitmap Container, And rr has
+		// an array Container.
+		// We will check the union between a BitmapCintainer And an
 		// arrayContainer
 		for k := 0; k < 4000; k++ {
 			rr2.AddInt(k)
@@ -1561,14 +1561,14 @@ func TestRoaringArrayCOW(t *testing.T) {
 	Convey("Test ArrayContainer Add", t, func() {
 		ar := newArrayContainer()
 		ar.iadd(1)
-		So(ar.getCardinality(), ShouldEqual, 1)
+		So(ar.GetCardinality(), ShouldEqual, 1)
 	})
 
 	Convey("Test ArrayContainer Add wacky", t, func() {
 		ar := newArrayContainer()
 		ar.iadd(0)
 		ar.iadd(5000)
-		So(ar.getCardinality(), ShouldEqual, 2)
+		So(ar.GetCardinality(), ShouldEqual, 2)
 	})
 
 	Convey("Test ArrayContainer Add Reverse", t, func() {
@@ -1576,13 +1576,13 @@ func TestRoaringArrayCOW(t *testing.T) {
 		ar.iadd(5000)
 		ar.iadd(2048)
 		ar.iadd(0)
-		So(ar.getCardinality(), ShouldEqual, 3)
+		So(ar.GetCardinality(), ShouldEqual, 3)
 	})
 
 	Convey("Test BitmapContainer Add ", t, func() {
 		bm := newBitmapContainer()
 		bm.iadd(0)
-		So(bm.getCardinality(), ShouldEqual, 1)
+		So(bm.GetCardinality(), ShouldEqual, 1)
 	})
 
 }
@@ -1811,7 +1811,7 @@ func TestStatsCOW(t *testing.T) {
 		So(rr.Stats(), ShouldResemble, expectedStats)
 	})
 	Convey("Test Stats with bitmap Container", t, func() {
-		// Given a bitmap that should have a single bitmap container
+		// Given a bitmap that should have a single bitmap Container
 		expectedStats := Statistics{
 			Cardinality: 60000,
 			Containers:  1,
@@ -1833,7 +1833,7 @@ func TestStatsCOW(t *testing.T) {
 	})
 
 	Convey("Test Stats with run Container", t, func() {
-		// Given that we should have a single run container
+		// Given that we should have a single run Container
 		intSize := int(unsafe.Sizeof(int(0)))
 		var runContainerBytes uint64
 		if intSize == 4 {
@@ -1860,7 +1860,7 @@ func TestStatsCOW(t *testing.T) {
 		So(rr.Stats(), ShouldResemble, expectedStats)
 	})
 	Convey("Test Stats with Array Container", t, func() {
-		// Given a bitmap that should have a single array container
+		// Given a bitmap that should have a single array Container
 		expectedStats := Statistics{
 			Cardinality: 2,
 			Containers:  1,

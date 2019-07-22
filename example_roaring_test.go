@@ -65,7 +65,7 @@ func TestExample_roaring060(t *testing.T) {
 		t.Errorf("Bad serialization")
 
 	} else {
-		fmt.Println("I wrote the content to a byte stream and read it back.")
+		fmt.Println("I wrote the content to a byte stream And read it back.")
 	}
 }
 
@@ -97,7 +97,7 @@ func TestExample2_roaring061(t *testing.T) {
 	if !r1.Equals(rb2) {
 		t.Errorf("RunOptimize should not affect equality.")
 	}
-	fmt.Print("size before run optimize: ", size, " bytes, and after: ", compactSize, " bytes.\n")
+	fmt.Print("size before run optimize: ", size, " bytes, And after: ", compactSize, " bytes.\n")
 	rb3 := New()
 	rb3.AddRange(1, 10000000)
 	r1.Or(rb3)
@@ -107,7 +107,7 @@ func TestExample2_roaring061(t *testing.T) {
 	rb1 := r1.Clone()
 	rb1.AndNot(rb3)
 	if !rb1.IsEmpty() {
-		t.Errorf("And not with large should clear...")
+		t.Errorf("BitmapAnd not with large should clear...")
 	}
 	for i := uint32(0); i < 10000; i += 3 {
 		rb1.Add(i)
@@ -117,6 +117,6 @@ func TestExample2_roaring061(t *testing.T) {
 	if rb1card != 1 {
 		//rb1.RunOptimize()
 		//fmt.Printf("\n rb1 = %s\n", rb1)
-		t.Errorf("Only the value 0 should survive the andNot; rb1card = %v", rb1card)
+		t.Errorf("Only the value 0 should survive the AndNot; rb1card = %v", rb1card)
 	}
 }

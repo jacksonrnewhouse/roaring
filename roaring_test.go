@@ -687,7 +687,7 @@ func TestBitmap(t *testing.T) {
 		for i := 200000; i < 400000; i += 14 {
 			rb2.AddInt(i)
 		}
-		//TODO: Bitmap.And(bm,bm2)
+		//TODO: Bitmap.BitmapAnd(bm,bm2)
 		andresult := And(rb, rb2)
 		off := And(rb2, rb)
 		So(andresult.Equals(off), ShouldEqual, true)
@@ -720,11 +720,11 @@ func TestBitmap(t *testing.T) {
 		ac := newArrayContainer()
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, k+1)
+			So(ac.GetCardinality(), ShouldEqual, k+1)
 		}
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, 100)
+			So(ac.GetCardinality(), ShouldEqual, 100)
 		}
 	})
 
@@ -771,11 +771,11 @@ func TestBitmap(t *testing.T) {
 		ac := newBitmapContainer()
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, k+1)
+			So(ac.GetCardinality(), ShouldEqual, k+1)
 		}
 		for k := uint16(0); k < 100; k++ {
 			ac.iadd(k)
-			So(ac.getCardinality(), ShouldEqual, 100)
+			So(ac.GetCardinality(), ShouldEqual, 100)
 		}
 	})
 
@@ -1069,7 +1069,7 @@ func TestBitmap(t *testing.T) {
 	})
 
 	Convey("flipTest7", t, func() {
-		// within 1 word, first container
+		// within 1 word, first Container
 		rb := NewBitmap()
 		rb.Flip(650, 132000)
 		rb.Flip(648, 651)
@@ -1421,9 +1421,9 @@ func TestBitmap(t *testing.T) {
 
 		rr := NewBitmap()
 		rr2 := NewBitmap()
-		// For the first 65536: rr2 has a bitmap container, and rr has
-		// an array container.
-		// We will check the union between a BitmapCintainer and an
+		// For the first 65536: rr2 has a bitmap Container, And rr has
+		// an array Container.
+		// We will check the union between a BitmapCintainer And an
 		// arrayContainer
 		for k := 0; k < 4000; k++ {
 			rr2.AddInt(k)
@@ -1680,9 +1680,9 @@ func IntsEquals(a, b []uint32) bool {
 }
 
 func validate(bc *bitmapContainer, ac *arrayContainer) bool {
-	// Checking the cardinalities of each container
+	// Checking the cardinalities of each Container
 
-	if bc.getCardinality() != ac.getCardinality() {
+	if bc.GetCardinality() != ac.GetCardinality() {
 		log.Println("cardinality differs")
 		return false
 	}
@@ -1701,7 +1701,7 @@ func validate(bc *bitmapContainer, ac *arrayContainer) bool {
 	}
 
 	// checking the cardinality of the BitmapContainer
-	return counter == bc.getCardinality()
+	return counter == bc.GetCardinality()
 }
 
 func TestRoaringArray(t *testing.T) {
@@ -1740,14 +1740,14 @@ func TestRoaringArray(t *testing.T) {
 	Convey("Test ArrayContainer Add", t, func() {
 		ar := newArrayContainer()
 		ar.iadd(1)
-		So(ar.getCardinality(), ShouldEqual, 1)
+		So(ar.GetCardinality(), ShouldEqual, 1)
 	})
 
 	Convey("Test ArrayContainer Add wacky", t, func() {
 		ar := newArrayContainer()
 		ar.iadd(0)
 		ar.iadd(5000)
-		So(ar.getCardinality(), ShouldEqual, 2)
+		So(ar.GetCardinality(), ShouldEqual, 2)
 	})
 
 	Convey("Test ArrayContainer Add Reverse", t, func() {
@@ -1755,13 +1755,13 @@ func TestRoaringArray(t *testing.T) {
 		ar.iadd(5000)
 		ar.iadd(2048)
 		ar.iadd(0)
-		So(ar.getCardinality(), ShouldEqual, 3)
+		So(ar.GetCardinality(), ShouldEqual, 3)
 	})
 
 	Convey("Test BitmapContainer Add ", t, func() {
 		bm := newBitmapContainer()
 		bm.iadd(0)
-		So(bm.getCardinality(), ShouldEqual, 1)
+		So(bm.GetCardinality(), ShouldEqual, 1)
 	})
 
 }
@@ -2001,7 +2001,7 @@ func TestStats(t *testing.T) {
 		So(rr.Stats(), ShouldResemble, expectedStats)
 	})
 	Convey("Test Stats with bitmap Container", t, func() {
-		// Given a bitmap that should have a single bitmap container
+		// Given a bitmap that should have a single bitmap Container
 		expectedStats := Statistics{
 			Cardinality: 60000,
 			Containers:  1,
@@ -2022,7 +2022,7 @@ func TestStats(t *testing.T) {
 	})
 
 	Convey("Test Stats with run Container", t, func() {
-		// Given that we should have a single run container
+		// Given that we should have a single run Container
 		intSize := int(unsafe.Sizeof(int(0)))
 		var runContainerBytes uint64
 		if intSize == 4 {
@@ -2048,7 +2048,7 @@ func TestStats(t *testing.T) {
 		So(rr.Stats(), ShouldResemble, expectedStats)
 	})
 	Convey("Test Stats with Array Container", t, func() {
-		// Given a bitmap that should have a single array container
+		// Given a bitmap that should have a single array Container
 		expectedStats := Statistics{
 			Cardinality: 2,
 			Containers:  1,

@@ -6,20 +6,20 @@ package roaring
 //
 // We derive a few lines of code from the sort.Search
 // function in the golang standard library. That function
-// is Copyright 2009 The Go Authors, and licensed
+// is Copyright 2009 The Go Authors, And licensed
 // under the following BSD-style license.
 /*
 Copyright (c) 2009 The Go Authors. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
+Redistribution And use in source And binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
    * Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
+notice, this list of conditions And the following disclaimer.
    * Redistributions in binary form must reproduce the above
-copyright notice, this list of conditions and the following disclaimer
-in the documentation and/or other materials provided with the
+copyright notice, this list of conditions And the following disclaimer
+in the documentation And/or other materials provided with the
 distribution.
    * Neither the name of Google Inc. nor the names of its
 contributors may be used to endorse or promote products derived from
@@ -117,7 +117,7 @@ func (p uint16Slice) Len() int { return len(p) }
 // Less returns p[i] < p[j]
 func (p uint16Slice) Less(i, j int) bool { return p[i] < p[j] }
 
-// Swap swaps elements i and j.
+// Swap swaps elements i And j.
 func (p uint16Slice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
 //msgp:ignore addHelper
@@ -157,17 +157,17 @@ func (ah *addHelper16) add(cur, prev uint16, i int) {
 	}
 }
 
-// newRunContainerRange makes a new container made of just the specified closed interval [rangestart,rangelast]
+// newRunContainerRange makes a new Container made of just the specified closed interval [rangestart,rangelast]
 func newRunContainer16Range(rangestart uint16, rangelast uint16) *runContainer16 {
 	rc := &runContainer16{}
 	rc.iv = append(rc.iv, newInterval16Range(rangestart, rangelast))
 	return rc
 }
 
-// newRunContainer16FromVals makes a new container from vals.
+// newRunContainer16FromVals makes a new Container from vals.
 //
 // For efficiency, vals should be sorted in ascending order.
-// Ideally vals should not contain duplicates, but we detect and
+// Ideally vals should not contain duplicates, but we detect And
 // ignore them. If vals is already sorted in ascending order, then
 // pass alreadySorted = true. Otherwise, for !alreadySorted,
 // we will sort vals before creating a runContainer16 of them.
@@ -205,7 +205,7 @@ func newRunContainer16FromVals(alreadySorted bool, vals ...uint16) *runContainer
 	return rc
 }
 
-// newRunContainer16FromBitmapContainer makes a new run container from bc,
+// newRunContainer16FromBitmapContainer makes a new run Container from bc,
 // somewhat efficiently. For reference, see the Java
 // https://github.com/RoaringBitmap/RoaringBitmap/blob/master/src/main/java/org/roaringbitmap/RunContainer.java#L145-L192
 func newRunContainer16FromBitmapContainer(bc *bitmapContainer) *runContainer16 {
@@ -257,7 +257,7 @@ func newRunContainer16FromBitmapContainer(bc *bitmapContainer) *runContainer16 {
 		runCount++
 		// now, zero out everything right of runEnd.
 		curWord = curWordWith1s & (curWordWith1s + 1)
-		// We've lathered and rinsed, so repeat...
+		// We've lathered And rinsed, so repeat...
 	}
 
 }
@@ -272,7 +272,7 @@ func newRunContainer16FromArray(arr *arrayContainer) *runContainer16 {
 	rc := &runContainer16{}
 	ah := addHelper16{rc: rc}
 
-	n := arr.getCardinality()
+	n := arr.GetCardinality()
 	var cur, prev uint16
 	switch {
 	case n == 0:
@@ -297,7 +297,7 @@ func newRunContainer16FromArray(arr *arrayContainer) *runContainer16 {
 
 // set adds the integers in vals to the set. Vals
 // must be sorted in increasing order; if not, you should set
-// alreadySorted to false, and we will sort them in place for you.
+// alreadySorted to false, And we will sort them in place for you.
 // (Be aware of this side effect -- it will affect the callers
 // view of vals).
 //
@@ -312,8 +312,8 @@ func (rc *runContainer16) set(alreadySorted bool, vals ...uint16) {
 }
 
 // canMerge returns true iff the intervals
-// a and b either overlap or they are
-// contiguous and so can be merged into
+// a And b either overlap or they are
+// contiguous And so can be merged into
 // a single interval.
 func canMerge16(a, b interval16) bool {
 	if int64(a.last())+1 < int64(b.start) {
@@ -324,8 +324,8 @@ func canMerge16(a, b interval16) bool {
 
 // haveOverlap differs from canMerge in that
 // it tells you if the intersection of a
-// and b would contain an element (otherwise
-// it would be the empty set, and we return
+// And b would contain an element (otherwise
+// it would be the empty set, And we return
 // false).
 func haveOverlap16(a, b interval16) bool {
 	if int64(a.last())+1 <= int64(b.start) {
@@ -334,11 +334,11 @@ func haveOverlap16(a, b interval16) bool {
 	return int64(b.last())+1 > int64(a.start)
 }
 
-// mergeInterval16s joins a and b into a
-// new interval, and panics if it cannot.
+// mergeInterval16s joins a And b into a
+// new interval, And panics if it cannot.
 func mergeInterval16s(a, b interval16) (res interval16) {
 	if !canMerge16(a, b) {
-		panic(fmt.Sprintf("cannot merge %#v and %#v", a, b))
+		panic(fmt.Sprintf("cannot merge %#v And %#v", a, b))
 	}
 
 	if b.start < a.start {
@@ -357,8 +357,8 @@ func mergeInterval16s(a, b interval16) (res interval16) {
 }
 
 // intersectInterval16s returns the intersection
-// of a and b. The isEmpty flag will be true if
-// a and b were disjoint.
+// of a And b. The isEmpty flag will be true if
+// a And b were disjoint.
 func intersectInterval16s(a, b interval16) (res interval16, isEmpty bool) {
 	if !haveOverlap16(a, b) {
 		isEmpty = true
@@ -384,7 +384,7 @@ func intersectInterval16s(a, b interval16) (res interval16, isEmpty bool) {
 }
 
 // union merges two runContainer16s, producing
-// a new runContainer16 with the union of rc and b.
+// a new runContainer16 with the union of rc And b.
 func (rc *runContainer16) union(b *runContainer16) *runContainer16 {
 
 	// rc is also known as 'a' here, but golint insisted we
@@ -425,7 +425,7 @@ func (rc *runContainer16) union(b *runContainer16) *runContainer16 {
 				mergedUpdated = true
 			}
 			if !mergedUpdated {
-				// we know that merged is disjoint from cura and curb
+				// we know that merged is disjoint from cura And curb
 				m = append(m, merged)
 				mergedUsed = false
 			}
@@ -499,7 +499,7 @@ func (rc *runContainer16) union(b *runContainer16) *runContainer16 {
 	return res
 }
 
-// unionCardinality returns the cardinality of the merger of two runContainer16s,  the union of rc and b.
+// unionCardinality returns the cardinality of the merger of two runContainer16s,  the union of rc And b.
 func (rc *runContainer16) unionCardinality(b *runContainer16) uint64 {
 
 	// rc is also known as 'a' here, but golint insisted we
@@ -539,7 +539,7 @@ func (rc *runContainer16) unionCardinality(b *runContainer16) uint64 {
 				mergedUpdated = true
 			}
 			if !mergedUpdated {
-				// we know that merged is disjoint from cura and curb
+				// we know that merged is disjoint from cura And curb
 				//m = append(m, merged)
 				answer += uint64(merged.last()) - uint64(merged.start) + 1
 				mergedUsed = false
@@ -628,7 +628,7 @@ func (rc *runContainer16) indexOfIntervalAtOrAfter(key int64, startIndex int64) 
 }
 
 // intersect returns a new runContainer16 holding the
-// intersection of rc (also known as 'a')  and b.
+// intersection of rc (also known as 'a')  And b.
 func (rc *runContainer16) intersect(b *runContainer16) *runContainer16 {
 
 	a := rc
@@ -738,7 +738,7 @@ toploop:
 }
 
 // intersectCardinality returns the cardinality of  the
-// intersection of rc (also known as 'a')  and b.
+// intersection of rc (also known as 'a')  And b.
 func (rc *runContainer16) intersectCardinality(b *runContainer16) int64 {
 	answer := int64(0)
 
@@ -842,26 +842,26 @@ toploop:
 	return answer
 }
 
-// get returns true iff key is in the container.
+// get returns true iff key is in the Container.
 func (rc *runContainer16) contains(key uint16) bool {
 	_, in, _ := rc.search(int64(key), nil)
 	return in
 }
 
-// numIntervals returns the count of intervals in the container.
+// numIntervals returns the count of intervals in the Container.
 func (rc *runContainer16) numIntervals() int {
 	return len(rc.iv)
 }
 
 // searchOptions allows us to accelerate search with
 // prior knowledge of (mostly lower) bounds. This is used by Union
-// and Intersect.
+// And Intersect.
 type searchOptions struct {
 	// start here instead of at 0
 	startIndex int64
 
 	// upper bound instead of len(rc.iv);
-	// endxIndex == 0 means ignore the bound and use
+	// endxIndex == 0 means ignore the bound And use
 	// endxIndex == n ==len(rc.iv) which is also
 	// naturally the default for search()
 	// when opt = nil.
@@ -886,7 +886,7 @@ type searchOptions struct {
 //  c) whichInterval16 is set to the minimum index of rc.iv
 //     which comes strictly before the key;
 //     so  rc.iv[whichInterval16].last < key,
-//     and  if whichInterval16+1 exists, then key < rc.iv[whichInterval16+1].start
+//     And  if whichInterval16+1 exists, then key < rc.iv[whichInterval16+1].start
 //     (Note that whichInterval16+1 won't exist when
 //     whichInterval16 is the last interval.)
 //
@@ -919,9 +919,9 @@ func (rc *runContainer16) search(key int64, opts *searchOptions) (whichInterval1
 
 	// For correctness, this began as verbatim snippet from
 	// sort.Search in the Go standard lib.
-	// We inline our comparison function for speed, and
+	// We inline our comparison function for speed, And
 	// annotate with numCompares
-	// to observe and test that extra bounds are utilized.
+	// to observe And test that extra bounds are utilized.
 	i, j := startIndex, endxIndex
 	for i < j {
 		h := i + (j-i)/2 // avoid overflow when computing h as the bisector
@@ -936,7 +936,7 @@ func (rc *runContainer16) search(key int64, opts *searchOptions) (whichInterval1
 	below := i
 	// end std lib snippet.
 
-	// The above is a simple in-lining and annotation of:
+	// The above is a simple in-lining And annotation of:
 	/*	below := sort.Search(n,
 		func(i int) bool {
 			return key < rc.iv[i].start
@@ -964,7 +964,7 @@ func (rc *runContainer16) search(key int64, opts *searchOptions) (whichInterval1
 		return
 	}
 
-	// INVAR: key is >= rc.iv[below-1].start and
+	// INVAR: key is >= rc.iv[below-1].start And
 	//        key is <  rc.iv[below].start
 
 	// is key in below-1 interval16?
@@ -1011,12 +1011,12 @@ func (rc *runContainer16) AsSlice() []uint16 {
 	return s
 }
 
-// newRunContainer16 creates an empty run container.
+// newRunContainer16 creates an empty run Container.
 func newRunContainer16() *runContainer16 {
 	return &runContainer16{}
 }
 
-// newRunContainer16CopyIv creates a run container, initializing
+// newRunContainer16CopyIv creates a run Container, initializing
 // with a copy of the supplied iv slice.
 //
 func newRunContainer16CopyIv(iv []interval16) *runContainer16 {
@@ -1065,8 +1065,8 @@ func runContainer16SerializedSizeInBytes(numRuns int) int {
 // Add adds a single value k to the set.
 func (rc *runContainer16) Add(k uint16) (wasNew bool) {
 	// TODO comment from runContainer16.java:
-	// it might be better and simpler to do return
-	// toBitmapOrArrayContainer(getCardinality()).add(k)
+	// it might be better And simpler to do return
+	// toBitmapOrArrayContainer(GetCardinality()).add(k)
 	// but note that some unit tests use this method to build up test
 	// runcontainers without calling runOptimize
 
@@ -1097,7 +1097,7 @@ func (rc *runContainer16) Add(k uint16) (wasNew bool) {
 		return
 	}
 
-	// are we off the end? handle both index == n and index == n-1:
+	// are we off the end? handle both index == n And index == n-1:
 	if index >= n-1 {
 		if int64(rc.iv[n-1].last())+1 == k64 {
 			rc.iv[n-1].length++
@@ -1107,17 +1107,17 @@ func (rc *runContainer16) Add(k uint16) (wasNew bool) {
 		return
 	}
 
-	// INVAR: index and index+1 both exist, and k goes between them.
+	// INVAR: index And index+1 both exist, And k goes between them.
 	//
 	// Now: add k into the middle,
 	// possibly fusing with index or index+1 interval16
-	// and possibly resulting in fusing of two interval16s
+	// And possibly resulting in fusing of two interval16s
 	// that had a one integer gap.
 
 	left := index
 	right := index + 1
 
-	// are we fusing left and right by adding k?
+	// are we fusing left And right by adding k?
 	if int64(rc.iv[left].last())+1 == k64 && int64(rc.iv[right].start) == k64+1 {
 		// fuse into left
 		rc.iv[left].length = rc.iv[right].last() - rc.iv[left].start
@@ -1150,7 +1150,7 @@ func (rc *runContainer16) Add(k uint16) (wasNew bool) {
 //msgp:ignore runIterator
 
 // runIterator16 advice: you must call Next() at least once
-// before calling Cur(); and you should call HasNext()
+// before calling Cur(); And you should call HasNext()
 // before calling Next() to insure there are contents.
 type runIterator16 struct {
 	rc            *runContainer16
@@ -1159,7 +1159,7 @@ type runIterator16 struct {
 	curSeq        int64
 }
 
-// newRunIterator16 returns a new empty run container.
+// newRunIterator16 returns a new empty run Container.
 func (rc *runContainer16) newRunIterator16() *runIterator16 {
 	return &runIterator16{rc: rc, curIndex: -1}
 }
@@ -1205,7 +1205,7 @@ func (ri *runIterator16) next() uint16 {
 }
 
 // remove removes the element that the iterator
-// is on from the run container. You can use
+// is on from the run Container. You can use
 // Cur if you want to double check what is about
 // to be deleted.
 func (ri *runIterator16) remove() uint16 {
@@ -1220,7 +1220,7 @@ func (ri *runIterator16) remove() uint16 {
 }
 
 // runReverseIterator16 advice: you must call next() at least once
-// before calling cur(); and you should call hasNext()
+// before calling cur(); And you should call hasNext()
 // before calling next() to insure there are contents.
 type runReverseIterator16 struct {
 	rc            *runContainer16
@@ -1277,7 +1277,7 @@ func (ri *runReverseIterator16) next() uint16 {
 }
 
 // remove removes the element that the iterator
-// is on from the run container. You can use
+// is on from the run Container. You can use
 // cur if you want to double check what is about
 // to be deleted.
 func (ri *runReverseIterator16) remove() uint16 {
@@ -1318,7 +1318,7 @@ func (ri *manyRunIterator16) nextMany(hs uint32, buf []uint32) int {
 	if !ri.hasNext() {
 		return n
 	}
-	// start and end are inclusive
+	// start And end are inclusive
 	for n < len(buf) {
 		if ri.curIndex == -1 || int(ri.rc.iv[ri.curIndex].length-ri.curPosInIndex) <= 0 {
 			ri.curPosInIndex = 0
@@ -1353,7 +1353,7 @@ func (ri *manyRunIterator16) nextMany(hs uint32, buf []uint32) int {
 	return n
 }
 
-// remove removes key from the container.
+// remove removes key from the Container.
 func (rc *runContainer16) removeKey(key uint16) (wasPresent bool) {
 
 	var index int64
@@ -1406,7 +1406,7 @@ func (rc *runContainer16) deleteAt(curIndex *int64, curPosInIndex *uint16, curSe
 		new1 := newInterval16Range(uint16(new1start), rc.iv[ci].last())
 		tail := append([]interval16{new0, new1}, rc.iv[ci+1:]...)
 		rc.iv = append(rc.iv[:ci], tail...)
-		// update curIndex and curPosInIndex
+		// update curIndex And curPosInIndex
 		*curIndex++
 		*curPosInIndex = 0
 	}
@@ -1458,7 +1458,7 @@ func (rc *runContainer16) findNextIntervalThatIntersectsStartingFrom(startIndex 
 	w, _, _ := rc.search(key, &rc.myOpts)
 	// rc.search always returns w < len(rc.iv)
 	if w < startIndex {
-		// not found and comes before lower bound startIndex,
+		// not found And comes before lower bound startIndex,
 		// so just use the lower bound.
 		if startIndex == int64(len(rc.iv)) {
 			// also this bump up means that we are done
@@ -1478,7 +1478,7 @@ func sliceToString16(m []interval16) string {
 	return s
 }
 
-// selectInt16 returns the j-th value in the container.
+// selectInt16 returns the j-th value in the Container.
 // We panic of j is out of bounds.
 func (rc *runContainer16) selectInt16(j uint16) int {
 	n := rc.cardinality()
@@ -1502,7 +1502,7 @@ func (rc *runContainer16) invertlastInterval(origin uint16, lastIdx int) []inter
 	cur := rc.iv[lastIdx]
 	if cur.last() == MaxUint16 {
 		if cur.start == origin {
-			return nil // empty container
+			return nil // empty Container
 		}
 		return []interval16{newInterval16Range(origin, cur.start-1)}
 	}
@@ -1516,7 +1516,7 @@ func (rc *runContainer16) invertlastInterval(origin uint16, lastIdx int) []inter
 	}
 }
 
-// invert returns a new container (not inplace), that is
+// invert returns a new Container (not inplace), that is
 // the inversion of rc. For each bit b in rc, the
 // returned value has !b
 func (rc *runContainer16) invert() *runContainer16 {
@@ -1532,12 +1532,12 @@ func (rc *runContainer16) invert() *runContainer16 {
 	ult := ni - 1
 	for i, cur := range rc.iv {
 		if i == ult {
-			// invertlastInteval will add both intervals (b) and (c) in
+			// invertlastInteval will add both intervals (b) And (c) in
 			// diagram below.
 			m = append(m, rc.invertlastInterval(uint16(invstart), i)...)
 			break
 		}
-		// INVAR: i and cur are not the last interval, there is a next at i+1
+		// INVAR: i And cur are not the last interval, there is a next at i+1
 		//
 		// ........[cur.start, cur.last] ...... [next.start, next.last]....
 		//    ^                             ^                           ^
@@ -1595,7 +1595,7 @@ func (rc *runContainer16) isubtract(del interval16) {
 		return // done
 	}
 
-	// INVAR there is some intersection between rc and del
+	// INVAR there is some intersection between rc And del
 	istart, startAlready, _ := rc.search(int64(del.start), nil)
 	ilast, lastAlready, _ := rc.search(int64(del.last()), nil)
 	rc.card = -1
@@ -1638,7 +1638,7 @@ func (rc *runContainer16) isubtract(del interval16) {
 			return
 		default:
 			// changeSize > 0 is only possible when ilast == istart.
-			// Hence we now know: changeSize == 1 and len(res0) == 2
+			// Hence we now know: changeSize == 1 And len(res0) == 2
 			rc.iv = append(rc.iv, interval16{})
 			// len(rc.iv) is correct now, no need to rc.iv = rc.iv[:newSize]
 
@@ -1666,7 +1666,7 @@ func (rc *runContainer16) isubtract(del interval16) {
 		//  c) istart is set to the minimum index of rc.iv
 		//     which comes strictly before the del.start;
 		//     so  del.start > rc.iv[istart].last,
-		//     and  if istart+1 exists, then del.start < rc.iv[istart+1].startx
+		//     And  if istart+1 exists, then del.start < rc.iv[istart+1].startx
 
 		// if del.last is not present, then ilast is
 		// set as follows:
@@ -1680,7 +1680,7 @@ func (rc *runContainer16) isubtract(del interval16) {
 		//  c) ilast is set to the minimum index of rc.iv
 		//     which comes strictly before the del.last;
 		//     so  del.last > rc.iv[ilast].last,
-		//     and  if ilast+1 exists, then del.last < rc.iv[ilast+1].start
+		//     And  if ilast+1 exists, then del.last < rc.iv[ilast+1].start
 
 		// INVAR: istart >= 0
 		pre := rc.iv[:istart+1]
@@ -1732,7 +1732,7 @@ func (rc *runContainer16) isubtract(del interval16) {
 	}
 }
 
-// compute rc minus b, and return the result as a new value (not inplace).
+// compute rc minus b, And return the result as a new value (not inplace).
 // port of run_container_andnot from CRoaring...
 // https://github.com/RoaringBitmap/CRoaring/blob/master/src/containers/run.c#L435-L496
 func (rc *runContainer16) AndNotRunContainer16(b *runContainer16) *runContainer16 {
@@ -1829,9 +1829,9 @@ func (rc *runContainer16) equals16(srb *runContainer16) bool {
 }
 
 // compile time verify we meet interface requirements
-var _ container = &runContainer16{}
+var _ Container = &runContainer16{}
 
-func (rc *runContainer16) clone() container {
+func (rc *runContainer16) clone() Container {
 	return newRunContainer16CopyIv(rc.iv)
 }
 
@@ -1847,7 +1847,7 @@ func (rc *runContainer16) isFull() bool {
 	return (len(rc.iv) == 1) && ((rc.iv[0].start == 0) && (rc.iv[0].last() == MaxUint16))
 }
 
-func (rc *runContainer16) and(a container) container {
+func (rc *runContainer16) And(a Container) Container {
 	if rc.isFull() {
 		return a.clone()
 	}
@@ -1859,10 +1859,10 @@ func (rc *runContainer16) and(a container) container {
 	case *bitmapContainer:
 		return rc.andBitmapContainer(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-func (rc *runContainer16) andCardinality(a container) int {
+func (rc *runContainer16) AndCardinality(a Container) int {
 	switch c := a.(type) {
 	case *runContainer16:
 		return int(rc.intersectCardinality(c))
@@ -1871,11 +1871,11 @@ func (rc *runContainer16) andCardinality(a container) int {
 	case *bitmapContainer:
 		return rc.andBitmapContainerCardinality(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-// andBitmapContainer finds the intersection of rc and b.
-func (rc *runContainer16) andBitmapContainer(bc *bitmapContainer) container {
+// andBitmapContainer finds the intersection of rc And b.
+func (rc *runContainer16) andBitmapContainer(bc *bitmapContainer) Container {
 	bc2 := newBitmapContainerFromRun(rc)
 	return bc2.andBitmap(bc)
 }
@@ -1883,7 +1883,7 @@ func (rc *runContainer16) andBitmapContainer(bc *bitmapContainer) container {
 func (rc *runContainer16) andArrayCardinality(ac *arrayContainer) int {
 	pos := 0
 	answer := 0
-	maxpos := ac.getCardinality()
+	maxpos := ac.GetCardinality()
 	if maxpos == 0 {
 		return 0 // won't happen in actual code
 	}
@@ -1909,7 +1909,7 @@ mainloop:
 	return answer
 }
 
-func (rc *runContainer16) iand(a container) container {
+func (rc *runContainer16) iand(a Container) Container {
 	if rc.isFull() {
 		return a.clone()
 	}
@@ -1921,10 +1921,10 @@ func (rc *runContainer16) iand(a container) container {
 	case *bitmapContainer:
 		return rc.iandBitmapContainer(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-func (rc *runContainer16) inplaceIntersect(rc2 *runContainer16) container {
+func (rc *runContainer16) inplaceIntersect(rc2 *runContainer16) Container {
 	// TODO: optimize by doing less allocation, possibly?
 	// sect will be new
 	sect := rc.intersect(rc2)
@@ -1932,18 +1932,18 @@ func (rc *runContainer16) inplaceIntersect(rc2 *runContainer16) container {
 	return rc
 }
 
-func (rc *runContainer16) iandBitmapContainer(bc *bitmapContainer) container {
+func (rc *runContainer16) iandBitmapContainer(bc *bitmapContainer) Container {
 	isect := rc.andBitmapContainer(bc)
 	*rc = *newRunContainer16FromContainer(isect)
 	return rc
 }
 
-func (rc *runContainer16) andArray(ac *arrayContainer) container {
+func (rc *runContainer16) andArray(ac *arrayContainer) Container {
 	if len(rc.iv) == 0 {
 		return newArrayContainer()
 	}
 
-	acCardinality := ac.getCardinality()
+	acCardinality := ac.GetCardinality()
 	c := newArrayContainerCapacity(acCardinality)
 
 	for rlePos, arrayPos := 0, 0; arrayPos < acCardinality; {
@@ -1968,7 +1968,7 @@ func (rc *runContainer16) andArray(ac *arrayContainer) container {
 	return c
 }
 
-func (rc *runContainer16) andNot(a container) container {
+func (rc *runContainer16) AndNot(a Container) Container {
 	switch c := a.(type) {
 	case *arrayContainer:
 		return rc.andNotArray(c)
@@ -1977,7 +1977,7 @@ func (rc *runContainer16) andNot(a container) container {
 	case *runContainer16:
 		return rc.andNotRunContainer16(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
 func (rc *runContainer16) fillLeastSignificant16bits(x []uint32, i int, mask uint32) {
@@ -2007,7 +2007,7 @@ func (rc *runContainer16) getManyIterator() manyIterable {
 
 // add the values in the range [firstOfRange, endx). endx
 // is still abe to express 2^16 because it is an int not an uint16.
-func (rc *runContainer16) iaddRange(firstOfRange, endx int) container {
+func (rc *runContainer16) iaddRange(firstOfRange, endx int) Container {
 
 	if firstOfRange >= endx {
 		panic(fmt.Sprintf("invalid %v = endx >= firstOfRange", endx))
@@ -2023,7 +2023,7 @@ func (rc *runContainer16) iaddRange(firstOfRange, endx int) container {
 }
 
 // remove the values in the range [firstOfRange,endx)
-func (rc *runContainer16) iremoveRange(firstOfRange, endx int) container {
+func (rc *runContainer16) iremoveRange(firstOfRange, endx int) Container {
 	if firstOfRange >= endx {
 		panic(fmt.Sprintf("request to iremove empty set [%v, %v),"+
 			" nothing to do.", firstOfRange, endx))
@@ -2035,7 +2035,7 @@ func (rc *runContainer16) iremoveRange(firstOfRange, endx int) container {
 }
 
 // not flip the values in the range [firstOfRange,endx)
-func (rc *runContainer16) not(firstOfRange, endx int) container {
+func (rc *runContainer16) not(firstOfRange, endx int) Container {
 	if firstOfRange >= endx {
 		panic(fmt.Sprintf("invalid %v = endx >= firstOfRange = %v", endx, firstOfRange))
 	}
@@ -2047,10 +2047,10 @@ func (rc *runContainer16) not(firstOfRange, endx int) container {
 // This is not inplace. Only the returned value has the flipped bits.
 //
 // Currently implemented as (!A intersect B) union (A minus B),
-// where A is rc, and B is the supplied [firstOfRange, endx) interval.
+// where A is rc, And B is the supplied [firstOfRange, endx) interval.
 //
 // TODO(time optimization): convert this to a single pass
-// algorithm by copying AndNotRunContainer16() and modifying it.
+// algorithm by copying AndNotRunContainer16() And modifying it.
 // Current routine is correct but
 // makes 2 more passes through the arrays than should be
 // strictly necessary. Measure both ways though--this may not matter.
@@ -2083,8 +2083,8 @@ func (rc *runContainer16) Not(firstOfRange, endx int) *runContainer16 {
 }
 
 // equals is now logical equals; it does not require the
-// same underlying container type.
-func (rc *runContainer16) equals(o container) bool {
+// same underlying Container type.
+func (rc *runContainer16) equals(o Container) bool {
 	srb, ok := o.(*runContainer16)
 
 	if !ok {
@@ -2114,7 +2114,7 @@ func (rc *runContainer16) equals(o container) bool {
 	}
 
 	// use generic comparison
-	if o.getCardinality() != rc.getCardinality() {
+	if o.GetCardinality() != rc.GetCardinality() {
 		return false
 	}
 	rit := rc.getShortIterator()
@@ -2130,7 +2130,7 @@ func (rc *runContainer16) equals(o container) bool {
 	return true
 }
 
-func (rc *runContainer16) iaddReturnMinimized(x uint16) container {
+func (rc *runContainer16) iaddReturnMinimized(x uint16) Container {
 	rc.Add(x)
 	return rc
 }
@@ -2139,7 +2139,7 @@ func (rc *runContainer16) iadd(x uint16) (wasNew bool) {
 	return rc.Add(x)
 }
 
-func (rc *runContainer16) iremoveReturnMinimized(x uint16) container {
+func (rc *runContainer16) iremoveReturnMinimized(x uint16) Container {
 	rc.removeKey(x)
 	return rc
 }
@@ -2148,7 +2148,7 @@ func (rc *runContainer16) iremove(x uint16) bool {
 	return rc.removeKey(x)
 }
 
-func (rc *runContainer16) or(a container) container {
+func (rc *runContainer16) or(a Container) Container {
 	if rc.isFull() {
 		return rc.clone()
 	}
@@ -2160,10 +2160,10 @@ func (rc *runContainer16) or(a container) container {
 	case *bitmapContainer:
 		return rc.orBitmapContainer(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-func (rc *runContainer16) orCardinality(a container) int {
+func (rc *runContainer16) orCardinality(a Container) int {
 	switch c := a.(type) {
 	case *runContainer16:
 		return int(rc.unionCardinality(c))
@@ -2172,11 +2172,11 @@ func (rc *runContainer16) orCardinality(a container) int {
 	case *bitmapContainer:
 		return rc.orBitmapContainerCardinality(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-// orBitmapContainer finds the union of rc and bc.
-func (rc *runContainer16) orBitmapContainer(bc *bitmapContainer) container {
+// orBitmapContainer finds the union of rc And bc.
+func (rc *runContainer16) orBitmapContainer(bc *bitmapContainer) Container {
 	bc2 := newBitmapContainerFromRun(rc)
 	return bc2.iorBitmap(bc)
 }
@@ -2191,22 +2191,22 @@ func (rc *runContainer16) andBitmapContainerCardinality(bc *bitmapContainer) int
 }
 
 func (rc *runContainer16) orBitmapContainerCardinality(bc *bitmapContainer) int {
-	return rc.getCardinality() + bc.getCardinality() - rc.andBitmapContainerCardinality(bc)
+	return rc.GetCardinality() + bc.GetCardinality() - rc.andBitmapContainerCardinality(bc)
 }
 
-// orArray finds the union of rc and ac.
-func (rc *runContainer16) orArray(ac *arrayContainer) container {
+// orArray finds the union of rc And ac.
+func (rc *runContainer16) orArray(ac *arrayContainer) Container {
 	bc1 := newBitmapContainerFromRun(rc)
 	bc2 := ac.toBitmapContainer()
 	return bc1.orBitmap(bc2)
 }
 
-// orArray finds the union of rc and ac.
+// orArray finds the union of rc And ac.
 func (rc *runContainer16) orArrayCardinality(ac *arrayContainer) int {
-	return ac.getCardinality() + rc.getCardinality() - rc.andArrayCardinality(ac)
+	return ac.GetCardinality() + rc.GetCardinality() - rc.andArrayCardinality(ac)
 }
 
-func (rc *runContainer16) ior(a container) container {
+func (rc *runContainer16) ior(a Container) Container {
 	if rc.isFull() {
 		return rc
 	}
@@ -2218,10 +2218,10 @@ func (rc *runContainer16) ior(a container) container {
 	case *bitmapContainer:
 		return rc.iorBitmapContainer(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-func (rc *runContainer16) inplaceUnion(rc2 *runContainer16) container {
+func (rc *runContainer16) inplaceUnion(rc2 *runContainer16) Container {
 	for _, p := range rc2.iv {
 		last := int64(p.last())
 		for i := int64(p.start); i <= last; i++ {
@@ -2231,7 +2231,7 @@ func (rc *runContainer16) inplaceUnion(rc2 *runContainer16) container {
 	return rc
 }
 
-func (rc *runContainer16) iorBitmapContainer(bc *bitmapContainer) container {
+func (rc *runContainer16) iorBitmapContainer(bc *bitmapContainer) Container {
 
 	it := bc.getShortIterator()
 	for it.hasNext() {
@@ -2240,7 +2240,7 @@ func (rc *runContainer16) iorBitmapContainer(bc *bitmapContainer) container {
 	return rc
 }
 
-func (rc *runContainer16) iorArray(ac *arrayContainer) container {
+func (rc *runContainer16) iorArray(ac *arrayContainer) Container {
 	it := ac.getShortIterator()
 	for it.hasNext() {
 		rc.Add(it.next())
@@ -2252,15 +2252,15 @@ func (rc *runContainer16) iorArray(ac *arrayContainer) container {
 // this nice note from @lemire on
 // https://github.com/RoaringBitmap/roaring/pull/70#issuecomment-263613737
 //
-// Description of lazyOR and lazyIOR from @lemire:
+// Description of lazyOR And lazyIOR from @lemire:
 //
-// Lazy functions are optional and can be simply
+// Lazy functions are optional And can be simply
 // wrapper around non-lazy functions.
 //
 // The idea of "laziness" is as follows. It is
 // inspired by the concept of lazy evaluation
 // you might be familiar with (functional programming
-// and all that). So a roaring bitmap is
+// And all that). So a roaring bitmap is
 // such that all its containers are, in some
 // sense, chosen to use as little memory as
 // possible. This is nice. Also, all bitsets
@@ -2271,7 +2271,7 @@ func (rc *runContainer16) iorArray(ac *arrayContainer) container {
 //
 // However, imagine that you are aggregating 100
 // bitmaps together. So you OR the first two, then OR
-// that with the third one and so forth. Clearly,
+// that with the third one And so forth. Clearly,
 // intermediate bitmaps don't need to be as
 // compressed as possible, right? They can be
 // in a "dirty state". You only need the end
@@ -2280,35 +2280,35 @@ func (rc *runContainer16) iorArray(ac *arrayContainer) container {
 //
 // The Java/C code does something special for
 // the in-place lazy OR runs. The idea is that
-// instead of taking two run containers and
+// instead of taking two run containers And
 // generating a new one, we actually try to
 // do the computation in-place through a
 // technique invented by @gssiyankai (pinging him!).
 // What you do is you check whether the host
-// run container has lots of extra capacity.
+// run Container has lots of extra capacity.
 // If it does, you move its data at the end of
-// the backing array, and then you write
+// the backing array, And then you write
 // the answer at the beginning. What this
 // trick does is minimize memory allocations.
 //
-func (rc *runContainer16) lazyIOR(a container) container {
+func (rc *runContainer16) lazyIOR(a Container) Container {
 	// not lazy at the moment
 	return rc.ior(a)
 }
 
 // lazyOR is described above in lazyIOR.
-func (rc *runContainer16) lazyOR(a container) container {
+func (rc *runContainer16) lazyOR(a Container) Container {
 	// not lazy at the moment
 	return rc.or(a)
 }
 
-func (rc *runContainer16) intersects(a container) bool {
+func (rc *runContainer16) intersects(a Container) bool {
 	// TODO: optimize by doing inplace/less allocation, possibly?
-	isect := rc.and(a)
-	return isect.getCardinality() > 0
+	isect := rc.And(a)
+	return isect.GetCardinality() > 0
 }
 
-func (rc *runContainer16) xor(a container) container {
+func (rc *runContainer16) xor(a Container) Container {
 	switch c := a.(type) {
 	case *arrayContainer:
 		return rc.xorArray(c)
@@ -2317,10 +2317,10 @@ func (rc *runContainer16) xor(a container) container {
 	case *runContainer16:
 		return rc.xorRunContainer16(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-func (rc *runContainer16) iandNot(a container) container {
+func (rc *runContainer16) iandNot(a Container) Container {
 	switch c := a.(type) {
 	case *arrayContainer:
 		return rc.iandNotArray(c)
@@ -2329,11 +2329,11 @@ func (rc *runContainer16) iandNot(a container) container {
 	case *runContainer16:
 		return rc.iandNotRunContainer16(c)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
 // flip the values in the range [firstOfRange,endx)
-func (rc *runContainer16) inot(firstOfRange, endx int) container {
+func (rc *runContainer16) inot(firstOfRange, endx int) Container {
 	if firstOfRange >= endx {
 		panic(fmt.Sprintf("invalid %v = endx >= firstOfRange = %v", endx, firstOfRange))
 	}
@@ -2342,7 +2342,7 @@ func (rc *runContainer16) inot(firstOfRange, endx int) container {
 	return rc
 }
 
-func (rc *runContainer16) getCardinality() int {
+func (rc *runContainer16) GetCardinality() int {
 	return int(rc.cardinality())
 }
 
@@ -2354,7 +2354,7 @@ func (rc *runContainer16) rank(x uint16) int {
 		return 0
 	}
 	if !already && w == n-1 {
-		return rc.getCardinality()
+		return rc.GetCardinality()
 	}
 	var rnk int64
 	if !already {
@@ -2374,17 +2374,17 @@ func (rc *runContainer16) selectInt(x uint16) int {
 	return rc.selectInt16(x)
 }
 
-func (rc *runContainer16) andNotRunContainer16(b *runContainer16) container {
+func (rc *runContainer16) andNotRunContainer16(b *runContainer16) Container {
 	return rc.AndNotRunContainer16(b)
 }
 
-func (rc *runContainer16) andNotArray(ac *arrayContainer) container {
+func (rc *runContainer16) andNotArray(ac *arrayContainer) Container {
 	rcb := rc.toBitmapContainer()
 	acb := ac.toBitmapContainer()
 	return rcb.andNotBitmap(acb)
 }
 
-func (rc *runContainer16) andNotBitmap(bc *bitmapContainer) container {
+func (rc *runContainer16) andNotBitmap(bc *bitmapContainer) Container {
 	rcb := rc.toBitmapContainer()
 	return rcb.andNotBitmap(bc)
 }
@@ -2398,57 +2398,57 @@ func (rc *runContainer16) toBitmapContainer() *bitmapContainer {
 	return bc
 }
 
-func (rc *runContainer16) iandNotRunContainer16(x2 *runContainer16) container {
+func (rc *runContainer16) iandNotRunContainer16(x2 *runContainer16) Container {
 	rcb := rc.toBitmapContainer()
 	x2b := x2.toBitmapContainer()
 	rcb.iandNotBitmapSurely(x2b)
-	// TODO: check size and optimize the return value
+	// TODO: check size And optimize the return value
 	// TODO: is inplace modification really required? If not, elide the copy.
 	rc2 := newRunContainer16FromBitmapContainer(rcb)
 	*rc = *rc2
 	return rc
 }
 
-func (rc *runContainer16) iandNotArray(ac *arrayContainer) container {
+func (rc *runContainer16) iandNotArray(ac *arrayContainer) Container {
 	rcb := rc.toBitmapContainer()
 	acb := ac.toBitmapContainer()
 	rcb.iandNotBitmapSurely(acb)
-	// TODO: check size and optimize the return value
+	// TODO: check size And optimize the return value
 	// TODO: is inplace modification really required? If not, elide the copy.
 	rc2 := newRunContainer16FromBitmapContainer(rcb)
 	*rc = *rc2
 	return rc
 }
 
-func (rc *runContainer16) iandNotBitmap(bc *bitmapContainer) container {
+func (rc *runContainer16) iandNotBitmap(bc *bitmapContainer) Container {
 	rcb := rc.toBitmapContainer()
 	rcb.iandNotBitmapSurely(bc)
-	// TODO: check size and optimize the return value
+	// TODO: check size And optimize the return value
 	// TODO: is inplace modification really required? If not, elide the copy.
 	rc2 := newRunContainer16FromBitmapContainer(rcb)
 	*rc = *rc2
 	return rc
 }
 
-func (rc *runContainer16) xorRunContainer16(x2 *runContainer16) container {
+func (rc *runContainer16) xorRunContainer16(x2 *runContainer16) Container {
 	rcb := rc.toBitmapContainer()
 	x2b := x2.toBitmapContainer()
 	return rcb.xorBitmap(x2b)
 }
 
-func (rc *runContainer16) xorArray(ac *arrayContainer) container {
+func (rc *runContainer16) xorArray(ac *arrayContainer) Container {
 	rcb := rc.toBitmapContainer()
 	acb := ac.toBitmapContainer()
 	return rcb.xorBitmap(acb)
 }
 
-func (rc *runContainer16) xorBitmap(bc *bitmapContainer) container {
+func (rc *runContainer16) xorBitmap(bc *bitmapContainer) Container {
 	rcb := rc.toBitmapContainer()
 	return rcb.xorBitmap(bc)
 }
 
 // convert to bitmap or array *if needed*
-func (rc *runContainer16) toEfficientContainer() container {
+func (rc *runContainer16) toEfficientContainer() Container {
 
 	// runContainer16SerializedSizeInBytes(numRuns)
 	sizeAsRunContainer := rc.getSizeInBytes()
@@ -2473,7 +2473,7 @@ func (rc *runContainer16) toArrayContainer() *arrayContainer {
 	return ac
 }
 
-func newRunContainer16FromContainer(c container) *runContainer16 {
+func newRunContainer16FromContainer(c Container) *runContainer16 {
 
 	switch x := c.(type) {
 	case *runContainer16:
@@ -2483,11 +2483,11 @@ func newRunContainer16FromContainer(c container) *runContainer16 {
 	case *bitmapContainer:
 		return newRunContainer16FromBitmapContainer(x)
 	}
-	panic("unsupported container type")
+	panic("unsupported Container type")
 }
 
-// And finds the intersection of rc and b.
-func (rc *runContainer16) And(b *Bitmap) *Bitmap {
+// BitmapAnd finds the intersection of rc And b.
+func (rc *runContainer16) BitmapAnd(b *Bitmap) *Bitmap {
 	out := NewBitmap()
 	for _, p := range rc.iv {
 		plast := p.last()
@@ -2500,7 +2500,7 @@ func (rc *runContainer16) And(b *Bitmap) *Bitmap {
 	return out
 }
 
-// Xor returns the exclusive-or of rc and b.
+// Xor returns the exclusive-or of rc And b.
 func (rc *runContainer16) Xor(b *Bitmap) *Bitmap {
 	out := b.Clone()
 	for _, p := range rc.iv {
@@ -2517,8 +2517,8 @@ func (rc *runContainer16) Xor(b *Bitmap) *Bitmap {
 	return out
 }
 
-// Or returns the union of rc and b.
-func (rc *runContainer16) Or(b *Bitmap) *Bitmap {
+// BitmapOr returns the union of rc And b.
+func (rc *runContainer16) BitmapOr(b *Bitmap) *Bitmap {
 	out := b.Clone()
 	for _, p := range rc.iv {
 		plast := p.last()
@@ -2538,7 +2538,7 @@ func (rc *runContainer16) serializedSizeInBytes() int {
 	return 2 + len(rc.iv)*4
 }
 
-func (rc *runContainer16) addOffset(x uint16) []container {
+func (rc *runContainer16) addOffset(x uint16) []Container {
 	low := newRunContainer16()
 	high := newRunContainer16()
 
@@ -2556,5 +2556,5 @@ func (rc *runContainer16) addOffset(x uint16) []container {
 			high.iv = append(high.iv, interval16{uint16(val & 0xffff), iv.length})
 		}
 	}
-	return []container{low, high}
+	return []Container{low, high}
 }

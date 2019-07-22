@@ -28,7 +28,7 @@ func (b *arrayContainer) readFrom(stream io.Reader) (int, error) {
 
 func (b *bitmapContainer) writeTo(stream io.Writer) (int, error) {
 	if b.cardinality <= arrayDefaultMaxSize {
-		return 0, errors.New("refusing to write bitmap container with cardinality of array container")
+		return 0, errors.New("refusing to write bitmap Container with cardinality of array Container")
 	}
 
 	// Write set
@@ -103,7 +103,7 @@ func byteSliceAsUint64Slice(slice []byte) []uint64 {
 }
 
 // Converts a byte slice to a interval16 slice.
-// The function assumes that the slice byte buffer is run container data
+// The function assumes that the slice byte buffer is run Container data
 // encoded according to Roaring Format Spec
 func byteSliceAsInterval16Slice(byteSlice []byte) []interval16 {
 	if len(byteSlice)%4 != 0 {

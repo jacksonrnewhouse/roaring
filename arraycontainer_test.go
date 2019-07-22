@@ -11,12 +11,12 @@ import (
 )
 
 func TestArrayContainerTransition(t *testing.T) {
-	v := container(newArrayContainer())
+	v := Container(newArrayContainer())
 	arraytype := reflect.TypeOf(v)
 	for i := 0; i < arrayDefaultMaxSize; i++ {
 		v = v.iaddReturnMinimized(uint16(i))
 	}
-	if v.getCardinality() != arrayDefaultMaxSize {
+	if v.GetCardinality() != arrayDefaultMaxSize {
 		t.Errorf("Bad cardinality.")
 	}
 	if reflect.TypeOf(v) != arraytype {
@@ -25,21 +25,21 @@ func TestArrayContainerTransition(t *testing.T) {
 	for i := 0; i < arrayDefaultMaxSize; i++ {
 		v = v.iaddReturnMinimized(uint16(i))
 	}
-	if v.getCardinality() != arrayDefaultMaxSize {
+	if v.GetCardinality() != arrayDefaultMaxSize {
 		t.Errorf("Bad cardinality.")
 	}
 	if reflect.TypeOf(v) != arraytype {
 		t.Errorf("Should be an array.")
 	}
 	v = v.iaddReturnMinimized(uint16(arrayDefaultMaxSize))
-	if v.getCardinality() != arrayDefaultMaxSize+1 {
+	if v.GetCardinality() != arrayDefaultMaxSize+1 {
 		t.Errorf("Bad cardinality.")
 	}
 	if reflect.TypeOf(v) == arraytype {
 		t.Errorf("Should be a bitmap.")
 	}
 	v = v.iremoveReturnMinimized(uint16(arrayDefaultMaxSize))
-	if v.getCardinality() != arrayDefaultMaxSize {
+	if v.GetCardinality() != arrayDefaultMaxSize {
 		t.Errorf("Bad cardinality.")
 	}
 	if reflect.TypeOf(v) != arraytype {
@@ -48,11 +48,11 @@ func TestArrayContainerTransition(t *testing.T) {
 }
 
 func TestArrayContainerRank(t *testing.T) {
-	v := container(newArrayContainer())
+	v := Container(newArrayContainer())
 	v = v.iaddReturnMinimized(10)
 	v = v.iaddReturnMinimized(100)
 	v = v.iaddReturnMinimized(1000)
-	if v.getCardinality() != 3 {
+	if v.GetCardinality() != 3 {
 		t.Errorf("Bogus cardinality.")
 	}
 	for i := 0; i <= arrayDefaultMaxSize; i++ {
@@ -81,14 +81,14 @@ func TestArrayOffset(t *testing.T) {
 	nums := []uint16{10, 100, 1000}
 	expected := make([]int, len(nums))
 	offtest := uint16(65000)
-	v := container(newArrayContainer())
+	v := Container(newArrayContainer())
 	for i, n := range nums {
 		v = v.iaddReturnMinimized(n)
 		expected[i] = int(n) + int(offtest)
 	}
 	w := v.addOffset(offtest)
-	w0card := w[0].getCardinality()
-	w1card := w[1].getCardinality()
+	w0card := w[0].GetCardinality()
+	w1card := w[1].GetCardinality()
 	if w0card+w1card != 3 {
 		t.Errorf("Bogus cardinality.")
 	}
@@ -108,12 +108,12 @@ func TestArrayOffset(t *testing.T) {
 }
 
 func TestArrayContainerMassiveSetAndGet(t *testing.T) {
-	v := container(newArrayContainer())
+	v := Container(newArrayContainer())
 	for j := 0; j <= arrayDefaultMaxSize; j++ {
 
 		v = v.iaddReturnMinimized(uint16(j))
-		if v.getCardinality() != 1+j {
-			t.Errorf("Bogus cardinality %d %d. ", v.getCardinality(), j)
+		if v.GetCardinality() != 1+j {
+			t.Errorf("Bogus cardinality %d %d. ", v.GetCardinality(), j)
 		}
 		for i := 0; i <= arrayDefaultMaxSize; i++ {
 			if i <= j {
@@ -135,13 +135,13 @@ type FakeContainer struct {
 }
 
 func TestArrayContainerUnsupportedType(t *testing.T) {
-	a := container(newArrayContainer())
+	a := Container(newArrayContainer())
 	testContainerPanics(t, a)
-	b := container(newBitmapContainer())
+	b := Container(newBitmapContainer())
 	testContainerPanics(t, b)
 }
 
-func testContainerPanics(t *testing.T, c container) {
+func testContainerPanics(t *testing.T, c Container) {
 	f := &FakeContainer{}
 	assertPanic(t, func() {
 		c.or(f)
@@ -156,7 +156,7 @@ func testContainerPanics(t *testing.T, c container) {
 		c.lazyOR(f)
 	})
 	assertPanic(t, func() {
-		c.and(f)
+		c.And(f)
 	})
 	assertPanic(t, func() {
 		c.intersects(f)
@@ -168,7 +168,7 @@ func testContainerPanics(t *testing.T, c container) {
 		c.xor(f)
 	})
 	assertPanic(t, func() {
-		c.andNot(f)
+		c.AndNot(f)
 	})
 	assertPanic(t, func() {
 		c.iandNot(f)
@@ -238,7 +238,7 @@ func TestArrayContainerNumberOfRuns025(t *testing.T) {
 					ac.iremoveRange(0, 2)
 					delete(ma, 0)
 					delete(ma, 1)
-					So(ac.getCardinality(), ShouldEqual, len(ma))
+					So(ac.GetCardinality(), ShouldEqual, len(ma))
 					ac.iadd(0)
 					ac.iadd(1)
 					ac.iadd(2)
@@ -301,7 +301,7 @@ func TestArrayContainerIaddRangeNearMax068(t *testing.T) {
 		ac.iaddRange(first-20, endx-20)
 		ac.iaddRange(first-6, endx-6)
 		ac.iaddRange(first, endx)
-		So(ac.getCardinality(), ShouldEqual, 9)
+		So(ac.GetCardinality(), ShouldEqual, 9)
 
 	})
 }
@@ -350,9 +350,9 @@ func TestArrayContainerEtc070(t *testing.T) {
 		// remove from middle of array
 		ac5 := newArrayContainer()
 		ac5.iaddRange(0, 10)
-		So(ac5.getCardinality(), ShouldEqual, 10)
+		So(ac5.GetCardinality(), ShouldEqual, 10)
 		ac6 := ac5.remove(5)
-		So(ac6.getCardinality(), ShouldEqual, 9)
+		So(ac6.GetCardinality(), ShouldEqual, 9)
 
 		// lazyorArray that converts to bitmap
 		ac5.iaddRange(0, arrayLazyLowerBound-1)
@@ -368,7 +368,7 @@ func TestArrayContainerEtc070(t *testing.T) {
 		bc9 := newBitmapContainer()
 		bc9.iaddRange(0, 5)
 		and := ac.andBitmap(bc9)
-		So(and.getCardinality(), ShouldEqual, 5)
+		So(and.GetCardinality(), ShouldEqual, 5)
 
 		// numberOfRuns with 1 member
 		ac10 := newArrayContainer()
@@ -379,7 +379,7 @@ func TestArrayContainerEtc070(t *testing.T) {
 
 func TestArrayContainerIand(t *testing.T) {
 
-	Convey("arrayContainer iand with full RLE container should work", t, func() {
+	Convey("arrayContainer iand with full RLE Container should work", t, func() {
 		a := NewBitmap()
 		a.AddRange(0, 200000)
 		b := BitmapOf(50, 100000, 150000)
