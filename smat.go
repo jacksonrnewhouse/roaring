@@ -114,7 +114,7 @@ var smatActionMap = smat.ActionMap{
 	smat.ActionID('B'): smatAction(" setBit", smatWrap(smatSetBit)),
 	smat.ActionID('b'): smatAction(" removeBit", smatWrap(smatRemoveBit)),
 
-	smat.ActionID('o'): smatAction(" or", smatWrap(smatOr)),
+	smat.ActionID('o'): smatAction(" Or", smatWrap(smatOr)),
 	smat.ActionID('a'): smatAction(" And", smatWrap(smatAnd)),
 
 	smat.ActionID('#'): smatAction(" cardinality", smatWrap(smatCardinality)),
@@ -274,7 +274,7 @@ func smatOrCardinality(c *smatContext) {
 			c0 := px.bm.OrCardinality(py.bm)
 			c1 := px.bs.UnionCardinality(py.bs)
 			if c0 != uint64(c1) {
-				panic("expected same or cardinality")
+				panic("expected same Or cardinality")
 			}
 			px.checkEquals()
 			py.checkEquals()

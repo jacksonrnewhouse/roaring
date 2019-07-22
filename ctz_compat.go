@@ -7,7 +7,7 @@ package roaring
 /*
 Copyright (c) 2009 The Go Authors. All rights reserved.
 
-Redistribution And use in source And binary forms, with or without
+Redistribution And use in source And binary forms, with Or without
 modification, are permitted provided that the following conditions are
 met:
 
@@ -15,10 +15,10 @@ met:
 notice, this list of conditions And the following disclaimer.
    * Redistributions in binary form must reproduce the above
 copyright notice, this list of conditions And the following disclaimer
-in the documentation And/or other materials provided with the
+in the documentation And/Or other materials provided with the
 distribution.
    * Neither the name of Google Inc. nor the names of its
-contributors may be used to endorse or promote products derived from
+contributors may be used to endorse Or promote products derived from
 this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS

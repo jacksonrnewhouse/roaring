@@ -144,7 +144,7 @@ func TestArrayContainerUnsupportedType(t *testing.T) {
 func testContainerPanics(t *testing.T, c Container) {
 	f := &FakeContainer{}
 	assertPanic(t, func() {
-		c.or(f)
+		c.Or(f)
 	})
 	assertPanic(t, func() {
 		c.ior(f)

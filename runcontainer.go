@@ -11,7 +11,7 @@ package roaring
 /*
 Copyright (c) 2009 The Go Authors. All rights reserved.
 
-Redistribution And use in source And binary forms, with or without
+Redistribution And use in source And binary forms, with Or without
 modification, are permitted provided that the following conditions are
 met:
 
@@ -19,10 +19,10 @@ met:
 notice, this list of conditions And the following disclaimer.
    * Redistributions in binary form must reproduce the above
 copyright notice, this list of conditions And the following disclaimer
-in the documentation And/or other materials provided with the
+in the documentation And/Or other materials provided with the
 distribution.
    * Neither the name of Google Inc. nor the names of its
-contributors may be used to endorse or promote products derived from
+contributors may be used to endorse Or promote products derived from
 this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -312,7 +312,7 @@ func (rc *runContainer16) set(alreadySorted bool, vals ...uint16) {
 }
 
 // canMerge returns true iff the intervals
-// a And b either overlap or they are
+// a And b either overlap Or they are
 // contiguous And so can be merged into
 // a single interval.
 func canMerge16(a, b interval16) bool {
@@ -1110,7 +1110,7 @@ func (rc *runContainer16) Add(k uint16) (wasNew bool) {
 	// INVAR: index And index+1 both exist, And k goes between them.
 	//
 	// Now: add k into the middle,
-	// possibly fusing with index or index+1 interval16
+	// possibly fusing with index Or index+1 interval16
 	// And possibly resulting in fusing of two interval16s
 	// that had a one integer gap.
 
@@ -1375,7 +1375,7 @@ func (rc *runContainer16) deleteAt(curIndex *int64, curPosInIndex *uint16, curSe
 	ci := *curIndex
 	pos := *curPosInIndex
 
-	// are we first, last, or in the middle of our interval16?
+	// are we first, last, Or in the middle of our interval16?
 	switch {
 	case pos == 0:
 		if int64(rc.iv[ci].length) == 0 {
@@ -1699,9 +1699,9 @@ func (rc *runContainer16) isubtract(del interval16) {
 		return
 
 	case startAlready && !lastAlready:
-		// we can only shrink or stay the same size
+		// we can only shrink Or stay the same size
 		// i.e. we either eliminate the whole interval,
-		// or just cut off the right side.
+		// Or just cut off the right side.
 		res0, _ := rc.iv[istart].subtractInterval(del)
 		if len(res0) > 0 {
 			// len(res) must be 1
@@ -1717,7 +1717,7 @@ func (rc *runContainer16) isubtract(del interval16) {
 		return
 
 	case !startAlready && lastAlready:
-		// we can only shrink or stay the same size
+		// we can only shrink Or stay the same size
 		res1, _ := rc.iv[ilast].subtractInterval(del)
 		lost := ilast - istart
 		changeSize := int64(len(res1)) - lost
@@ -2148,7 +2148,7 @@ func (rc *runContainer16) iremove(x uint16) bool {
 	return rc.removeKey(x)
 }
 
-func (rc *runContainer16) or(a Container) Container {
+func (rc *runContainer16) Or(a Container) Container {
 	if rc.isFull() {
 		return rc.clone()
 	}
@@ -2265,7 +2265,7 @@ func (rc *runContainer16) iorArray(ac *arrayContainer) Container {
 // sense, chosen to use as little memory as
 // possible. This is nice. Also, all bitsets
 // are "cardinality aware" so that you can do
-// fast rank/select queries, or query the
+// fast rank/select queries, Or query the
 // cardinality of the whole bitmap... very fast,
 // without latency.
 //
@@ -2299,7 +2299,7 @@ func (rc *runContainer16) lazyIOR(a Container) Container {
 // lazyOR is described above in lazyIOR.
 func (rc *runContainer16) lazyOR(a Container) Container {
 	// not lazy at the moment
-	return rc.or(a)
+	return rc.Or(a)
 }
 
 func (rc *runContainer16) intersects(a Container) bool {
@@ -2447,7 +2447,7 @@ func (rc *runContainer16) xorBitmap(bc *bitmapContainer) Container {
 	return rcb.xorBitmap(bc)
 }
 
-// convert to bitmap or array *if needed*
+// convert to bitmap Or array *if needed*
 func (rc *runContainer16) toEfficientContainer() Container {
 
 	// runContainer16SerializedSizeInBytes(numRuns)
@@ -2500,7 +2500,7 @@ func (rc *runContainer16) BitmapAnd(b *Bitmap) *Bitmap {
 	return out
 }
 
-// Xor returns the exclusive-or of rc And b.
+// Xor returns the exclusive-Or of rc And b.
 func (rc *runContainer16) Xor(b *Bitmap) *Bitmap {
 	out := b.Clone()
 	for _, p := range rc.iv {

@@ -346,7 +346,7 @@ func (bc *bitmapContainer) not(firstOfRange, endx int) Container {
 	return answer.inot(firstOfRange, endx)
 }
 
-func (bc *bitmapContainer) or(a Container) Container {
+func (bc *bitmapContainer) Or(a Container) Container {
 	switch x := a.(type) {
 	case *arrayContainer:
 		return bc.orArray(x)
@@ -1005,7 +1005,7 @@ func (bc *bitmapContainer) numberOfRuns() int {
 	return int(numRuns)
 }
 
-// convert to run or array *if needed*
+// convert to run Or array *if needed*
 func (bc *bitmapContainer) toEfficientContainer() Container {
 
 	numRuns := bc.numberOfRuns()

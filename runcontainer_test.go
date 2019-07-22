@@ -1008,7 +1008,7 @@ func TestRle16RandomIntersectAgainstOtherContainers010(t *testing.T) {
 
 func TestRle16RandomUnionAgainstOtherContainers011(t *testing.T) {
 
-	Convey("runContainer16 `or` operation against other Container types should correctly do the intersection", t, func() {
+	Convey("runContainer16 `Or` operation against other Container types should correctly do the intersection", t, func() {
 		seed := int64(42)
 		rand.Seed(seed)
 
@@ -1048,7 +1048,7 @@ func TestRle16RandomUnionAgainstOtherContainers011(t *testing.T) {
 					hashi[k] = true
 				}
 
-				// RunContainer's 'or'
+				// RunContainer's 'Or'
 				rc := newRunContainer16FromVals(false, a...)
 
 				// vs bitmapContainer
@@ -1066,9 +1066,9 @@ func TestRle16RandomUnionAgainstOtherContainers011(t *testing.T) {
 				// vs runContainer
 				rcb := newRunContainer16FromVals(false, b...)
 
-				rcVsBcUnion := rc.or(bc)
-				rcVsAcUnion := rc.or(ac)
-				rcVsRcbUnion := rc.or(rcb)
+				rcVsBcUnion := rc.Or(bc)
+				rcVsAcUnion := rc.Or(ac)
+				rcVsRcbUnion := rc.Or(rcb)
 
 				for k := range hashi {
 					So(rcVsBcUnion.contains(uint16(k)), ShouldBeTrue)
@@ -1130,7 +1130,7 @@ func TestRle16RandomInplaceUnionAgainstOtherContainers012(t *testing.T) {
 					hashi[k] = true
 				}
 
-				// RunContainer's 'or'
+				// RunContainer's 'Or'
 				rc := newRunContainer16FromVals(false, a...)
 				rcVsBcUnion := rc.Clone()
 				rcVsAcUnion := rc.Clone()
@@ -1931,7 +1931,7 @@ func TestRleToEfficientContainer027(t *testing.T) {
 		seed := int64(42)
 		rand.Seed(seed)
 
-		// 4096 or fewer integers -> array typically
+		// 4096 Or fewer integers -> array typically
 
 		trials := []trial{
 			{n: 8000, percentFill: .01, ntrial: 10},
@@ -2244,7 +2244,7 @@ func TestAllContainerMethodsAllContainerTypes065(t *testing.T) {
 				i.xor(j)
 				i.equals(j)
 
-				i.or(j)
+				i.Or(j)
 				i.ior(j)
 				i.intersects(j)
 
@@ -2294,7 +2294,7 @@ func TestAllContainerMethodsAllContainerTypesWithData067(t *testing.T) {
 					callme = append(callme, twofer{"ior", c.ior, c})
 					callme = append(callme, twofer{"lazyOR", c.lazyOR, c})
 					callme = append(callme, twofer{"lazyIOR", c.lazyIOR, c})
-					callme = append(callme, twofer{"or", c.or, c})
+					callme = append(callme, twofer{"Or", c.Or, c})
 					callme = append(callme, twofer{"xor", c.xor, c})
 					callme = append(callme, twofer{"AndNot", c.AndNot, c})
 					callme = append(callme, twofer{"iandNot", c.iandNot, c})

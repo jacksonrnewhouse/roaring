@@ -35,7 +35,7 @@ func init() {
 func retrieveRealDataBitmaps(datasetName string, optimize bool) ([]*Bitmap, error) {
 	gopath, ok := os.LookupEnv("GOPATH")
 	if !ok {
-		return nil, fmt.Errorf("GOPATH not set. It's required to locate real-roaring-datasets. Set GOPATH or disable BENCH_REAL_DATA")
+		return nil, fmt.Errorf("GOPATH not set. It's required to locate real-roaring-datasets. Set GOPATH Or disable BENCH_REAL_DATA")
 	}
 
 	basePath := path.Join(gopath, "src", "github.com", "RoaringBitmap", "real-roaring-datasets")

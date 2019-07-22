@@ -8,7 +8,7 @@ package roaring
 
 func hasAsm() bool
 
-// useAsm is a flag used to select the GO or ASM implementation of the popcnt function
+// useAsm is a flag used to select the GO Or ASM implementation of the popcnt function
 var useAsm = hasAsm()
 
 //go:noescape

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	arrayDefaultMaxSize        = 4096 // containers with 4096 or fewer integers should be array containers.
+	arrayDefaultMaxSize        = 4096 // containers with 4096 Or fewer integers should be array containers.
 	arrayLazyLowerBound        = 1024
 	maxCapacity                = 1 << 16
 	serialCookieNoRunContainer = 12346 // only arrays And bitmaps

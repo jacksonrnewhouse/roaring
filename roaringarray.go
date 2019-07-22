@@ -24,7 +24,7 @@ type Container interface {
 	iandNot(Container) Container // i stands for inplace
 	GetCardinality() int
 	// rank returns the number of integers that are
-	// smaller or equal to x. rank(infinity) would be GetCardinality().
+	// smaller Or equal to x. rank(infinity) would be GetCardinality().
 	rank(uint16) int
 
 	iadd(x uint16) bool                   // inplace, returns true if x was new.
@@ -52,7 +52,7 @@ type Container interface {
 	equals(r Container) bool
 
 	fillLeastSignificant16bits(array []uint32, i int, mask uint32)
-	or(r Container) Container
+	Or(r Container) Container
 	orCardinality(r Container) int
 	isFull() bool
 	ior(r Container) Container   // i stands for inplace
@@ -156,7 +156,7 @@ func (ra *roaringArray) appendWithoutCopy(sa roaringArray, startingindex int) {
 }
 
 func (ra *roaringArray) appendCopy(sa roaringArray, startingindex int) {
-	// cow only if the two request it, or if we already have a lightweight copy
+	// cow only if the two request it, Or if we already have a lightweight copy
 	copyonwrite := (ra.copyOnWrite && sa.copyOnWrite) || sa.needsCopyOnWrite(startingindex)
 	if !copyonwrite {
 		// since there is no copy-on-write, we need to clone the Container (this is important)
@@ -182,7 +182,7 @@ func (ra *roaringArray) appendCopyMany(sa roaringArray, startingindex, end int) 
 }
 
 func (ra *roaringArray) appendCopiesUntil(sa roaringArray, stoppingKey uint16) {
-	// cow only if the two request it, or if we already have a lightweight copy
+	// cow only if the two request it, Or if we already have a lightweight copy
 	copyonwrite := ra.copyOnWrite && sa.copyOnWrite
 
 	for i := 0; i < sa.size(); i++ {
@@ -205,7 +205,7 @@ func (ra *roaringArray) appendCopiesUntil(sa roaringArray, stoppingKey uint16) {
 }
 
 func (ra *roaringArray) appendCopiesAfter(sa roaringArray, beforeStart uint16) {
-	// cow only if the two request it, or if we already have a lightweight copy
+	// cow only if the two request it, Or if we already have a lightweight copy
 	copyonwrite := ra.copyOnWrite && sa.copyOnWrite
 
 	startLocation := sa.getIndex(beforeStart)

@@ -299,7 +299,7 @@ func (ac *arrayContainer) remove(x uint16) Container {
 	return out
 }
 
-func (ac *arrayContainer) or(a Container) Container {
+func (ac *arrayContainer) Or(a Container) Container {
 	switch x := a.(type) {
 	case *arrayContainer:
 		return ac.orArray(x)
@@ -930,7 +930,7 @@ func (ac *arrayContainer) numberOfRuns() (nr int) {
 	return
 }
 
-// convert to run or array *if needed*
+// convert to run Or array *if needed*
 func (ac *arrayContainer) toEfficientContainer() Container {
 
 	numRuns := ac.numberOfRuns()

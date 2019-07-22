@@ -55,7 +55,7 @@ func (rb *Bitmap) ToBytes() ([]byte, error) {
 // version of this bitmap to stream. The format is not
 // compatible with the WriteTo() format, And is
 // experimental: it may produce smaller on disk
-// footprint And/or be faster to read, depending
+// footprint And/Or be faster to read, depending
 // on your content. Currently only the Go roaring
 // implementation supports this format.
 func (rb *Bitmap) WriteToMsgpack(stream io.Writer) (int64, error) {
@@ -356,19 +356,19 @@ func (rb *Bitmap) String() string {
 }
 
 // Iterator creates a new IntIterable to iterate over the integers contained in the bitmap, in sorted order;
-// the iterator becomes invalid if the bitmap is modified (e.g., with Add or Remove).
+// the iterator becomes invalid if the bitmap is modified (e.g., with Add Or Remove).
 func (rb *Bitmap) Iterator() IntIterable {
 	return newIntIterator(rb)
 }
 
 // ReverseIterator creates a new IntIterable to iterate over the integers contained in the bitmap, in sorted order;
-// the iterator becomes invalid if the bitmap is modified (e.g., with Add or Remove).
+// the iterator becomes invalid if the bitmap is modified (e.g., with Add Or Remove).
 func (rb *Bitmap) ReverseIterator() IntIterable {
 	return newIntReverseIterator(rb)
 }
 
 // ManyIterator creates a new ManyIntIterable to iterate over the integers contained in the bitmap, in sorted order;
-// the iterator becomes invalid if the bitmap is modified (e.g., with Add or Remove).
+// the iterator becomes invalid if the bitmap is modified (e.g., with Add Or Remove).
 func (rb *Bitmap) ManyIterator() ManyIntIterable {
 	return newManyIntIterator(rb)
 }
@@ -554,7 +554,7 @@ func (rb *Bitmap) GetCardinality() uint64 {
 	return size
 }
 
-// Rank returns the number of integers that are smaller or equal to x (Rank(infinity) would be GetCardinality())
+// Rank returns the number of integers that are smaller Or equal to x (Rank(infinity) would be GetCardinality())
 func (rb *Bitmap) Rank(x uint32) uint64 {
 	size := uint64(0)
 	for i := 0; i < rb.highlowcontainer.size(); i++ {
@@ -670,7 +670,7 @@ main:
 					s2 = x2.highlowcontainer.getKeyAtIndex(pos2)
 				} else {
 					// TODO: could be faster if we did not have to materialize the Container
-					answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).or(x2.highlowcontainer.getContainerAtIndex(pos2)).GetCardinality())
+					answer += uint64(rb.highlowcontainer.getContainerAtIndex(pos1).Or(x2.highlowcontainer.getContainerAtIndex(pos2)).GetCardinality())
 					pos1++
 					pos2++
 					if (pos1 == length1) || (pos2 == length2) {
@@ -964,7 +964,7 @@ main:
 				s2 = x2.highlowcontainer.getKeyAtIndex(pos2)
 			} else {
 
-				answer.highlowcontainer.appendContainer(s1, x1.highlowcontainer.getContainerAtIndex(pos1).or(x2.highlowcontainer.getContainerAtIndex(pos2)), false)
+				answer.highlowcontainer.appendContainer(s1, x1.highlowcontainer.getContainerAtIndex(pos1).Or(x2.highlowcontainer.getContainerAtIndex(pos2)), false)
 				pos1++
 				pos2++
 				if (pos1 == length1) || (pos2 == length2) {

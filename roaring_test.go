@@ -728,7 +728,7 @@ func TestBitmap(t *testing.T) {
 		}
 	})
 
-	Convey("or test", t, func() {
+	Convey("Or test", t, func() {
 		rr := NewBitmap()
 		for k := 0; k < 4000; k++ {
 			rr.AddInt(k)
@@ -1319,7 +1319,7 @@ func TestBitmap(t *testing.T) {
 		}
 		rb2card := rb2.GetCardinality()
 
-		// check or against an empty bitmap
+		// check Or against an empty bitmap
 		orresult := Or(rb, rb2)
 		off := Or(rb2, rb)
 		So(orresult.Equals(off), ShouldEqual, true)
@@ -1332,7 +1332,7 @@ func TestBitmap(t *testing.T) {
 		for i := 200000; i < 400000; i += 3 {
 			rb2.AddInt(i)
 		}
-		// check or against an empty bitmap
+		// check Or against an empty bitmap
 		orresult2 := Or(rb, rb2)
 		So(rb2card, ShouldEqual, orresult.GetCardinality())
 		So(rb2.GetCardinality()+rb.GetCardinality(), ShouldEqual,
@@ -1515,7 +1515,7 @@ func TestXORtest4(t *testing.T) {
 		rb2card := rb2.GetCardinality()
 		So(rb2card, ShouldEqual, counter)
 
-		// check or against an empty bitmap
+		// check Or against an empty bitmap
 		xorresult := Xor(rb, rb2)
 		So(xorresult.GetCardinality(), ShouldEqual, counter)
 		off := Or(rb2, rb)
@@ -1529,7 +1529,7 @@ func TestXORtest4(t *testing.T) {
 		for i := 200000; i < 400000; i += 3 {
 			rb2.AddInt(i)
 		}
-		// check or against an empty bitmap
+		// check Or against an empty bitmap
 		xorresult2 := Xor(rb, rb2)
 		So(rb2card, ShouldEqual, xorresult.GetCardinality())
 
