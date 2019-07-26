@@ -101,16 +101,16 @@ func rangeOfOnes(start, last int) Container {
 
 func ContainerFromBytes(bytes []byte) Container {
 	if len(bytes) == 8192 {
-		container := &bitmapContainer{bitmap: byteSliceAsUint64Slice(bytes) }
-		container.computeCardinality();
-		return container;
+		container := &bitmapContainer{bitmap: byteSliceAsUint64Slice(bytes)}
+		container.computeCardinality()
+		return container
 	} else {
-		return &arrayContainer{byteSliceAsUint16Slice(bytes[2:])};
+		return &arrayContainer{byteSliceAsUint16Slice(bytes[2:])}
 	}
 }
 
 func ContainerFromShorts(shorts []uint16) Container {
-	return arrayContainer{shorts}.toEfficientContainer()
+	return (&arrayContainer{shorts}).toEfficientContainer()
 }
 
 type roaringArray struct {
@@ -296,7 +296,6 @@ func (ra *roaringArray) clone() *roaringArray {
 	}
 	return &sa
 }
-
 
 // clone all containers which have needCopyOnWrite set to true
 // This can be used to make sure it is safe to munmap a []byte
