@@ -109,6 +109,10 @@ func ContainerFromBytes(bytes []byte) Container {
 	}
 }
 
+func ContainerFromShorts(shorts []uint16) Container {
+	return arrayContainer{shorts}.toEfficientContainer()
+}
+
 type roaringArray struct {
 	keys            []uint16
 	containers      []Container `msg:"-"` // don't try to serialize directly.
