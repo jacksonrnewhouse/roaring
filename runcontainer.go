@@ -2529,10 +2529,10 @@ func (rc *runContainer16) BitmapOr(b *Bitmap) *Bitmap {
 	return out
 }
 
-// serializedSizeInBytes returns the number of bytes of memory
+// SerializedSizeInBytes returns the number of bytes of memory
 // required by this runContainer16. This is for the
 // Roaring format, as specified https://github.com/RoaringBitmap/RoaringFormatSpec/
-func (rc *runContainer16) serializedSizeInBytes() int {
+func (rc *runContainer16) SerializedSizeInBytes() int {
 	// number of runs in one uint16, then each run
 	// needs two more uint16
 	return 2 + len(rc.iv)*4

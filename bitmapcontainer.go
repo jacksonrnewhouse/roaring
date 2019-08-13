@@ -193,7 +193,7 @@ func (bc *bitmapContainer) getSizeInBytes() int {
 	return len(bc.bitmap) * 8 // + bcBaseBytes
 }
 
-func (bc *bitmapContainer) serializedSizeInBytes() int {
+func (bc *bitmapContainer) SerializedSizeInBytes() int {
 	//return bc.Msgsize()// NOO! This breaks GetSerializedSizeInBytes
 	return len(bc.bitmap) * 8
 }

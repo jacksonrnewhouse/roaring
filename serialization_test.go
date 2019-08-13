@@ -268,7 +268,7 @@ func TestSerializationBasic2_041(t *testing.T) {
 
 func TestSerializationBasic3_042(t *testing.T) {
 
-	Convey("roaringarray.writeTo And .readFrom should serialize And unserialize when containing all 3 Container types", t, func() {
+	Convey("roaringarray.WriteTo And .readFrom should serialize And unserialize when containing all 3 Container types", t, func() {
 		rb := BitmapOf(1, 2, 3, 4, 5, 100, 1000, 10000, 100000, 1000000)
 		for i := 5000000; i < 5000000+2*(1<<16); i++ {
 			rb.AddInt(i)
@@ -342,7 +342,7 @@ func TestGobcoding043(t *testing.T) {
 
 func TestSerializationRunContainerMsgpack028(t *testing.T) {
 
-	Convey("runContainer writeTo And readFrom should return logically equivalent containers", t, func() {
+	Convey("runContainer WriteTo And readFrom should return logically equivalent containers", t, func() {
 		seed := int64(42)
 		rand.Seed(seed)
 
@@ -398,7 +398,7 @@ func TestSerializationRunContainerMsgpack028(t *testing.T) {
 
 func TestSerializationArrayOnly032(t *testing.T) {
 
-	Convey("arrayContainer writeTo And readFrom should return logically equivalent containers, so long as you pre-size the write target properly", t, func() {
+	Convey("arrayContainer WriteTo And readFrom should return logically equivalent containers, so long as you pre-size the write target properly", t, func() {
 
 		seed := int64(42)
 		rand.Seed(seed)
@@ -426,7 +426,7 @@ func TestSerializationArrayOnly032(t *testing.T) {
 				}
 
 				buf := &bytes.Buffer{}
-				_, err := ac.writeTo(buf)
+				_, err := ac.WriteTo(buf)
 				panicOn(err)
 				// have to pre-size the array write-target properly
 				// by telling it the cardinality to read.
@@ -446,7 +446,7 @@ func TestSerializationArrayOnly032(t *testing.T) {
 
 func TestSerializationRunOnly033(t *testing.T) {
 
-	Convey("runContainer16 writeTo And readFrom should return logically equivalent containers", t, func() {
+	Convey("runContainer16 WriteTo And readFrom should return logically equivalent containers", t, func() {
 
 		seed := int64(42)
 		rand.Seed(seed)
@@ -473,7 +473,7 @@ func TestSerializationRunOnly033(t *testing.T) {
 				}
 
 				buf := &bytes.Buffer{}
-				_, err := ac.writeTo(buf)
+				_, err := ac.WriteTo(buf)
 				panicOn(err)
 				ac2 := newRunContainer16()
 
@@ -492,7 +492,7 @@ func TestSerializationRunOnly033(t *testing.T) {
 
 func TestSerializationBitmapOnly034(t *testing.T) {
 
-	Convey("bitmapContainer writeTo And readFrom should return logically equivalent containers", t, func() {
+	Convey("bitmapContainer WriteTo And readFrom should return logically equivalent containers", t, func() {
 		seed := int64(42)
 		rand.Seed(seed)
 
@@ -518,7 +518,7 @@ func TestSerializationBitmapOnly034(t *testing.T) {
 				}
 
 				buf := &bytes.Buffer{}
-				_, err := bc.writeTo(buf)
+				_, err := bc.WriteTo(buf)
 				panicOn(err)
 				bc2 := newBitmapContainer()
 

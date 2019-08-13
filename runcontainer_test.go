@@ -836,7 +836,7 @@ func TestRleCoverageOddsAndEnds16(t *testing.T) {
 			// runContainer16SerializedSizeInBytes
 			// runContainer16.SerializedSizeInBytes
 			_ = runContainer16SerializedSizeInBytes(3)
-			_ = rc3.serializedSizeInBytes()
+			_ = rc3.SerializedSizeInBytes()
 
 			// findNextIntervalThatIntersectsStartingFrom
 			idx, _ := rc3.findNextIntervalThatIntersectsStartingFrom(0, 100)
@@ -2215,7 +2215,7 @@ func TestRle16RandomIaddRangeIremoveRange031(t *testing.T) {
 				}
 
 				// coverage for run16 method
-				So(rc.serializedSizeInBytes(), ShouldEqual, 2+4*rc.numberOfRuns())
+				So(rc.SerializedSizeInBytes(), ShouldEqual, 2+4*rc.numberOfRuns())
 			}
 		}
 

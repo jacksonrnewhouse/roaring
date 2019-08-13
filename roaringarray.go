@@ -63,9 +63,9 @@ type Container interface {
 	//removeRange(start, final int) Container  // range is [firstOfRange,lastOfRange) (unused)
 	iremoveRange(start, final int) Container // i stands for inplace, range is [firstOfRange,lastOfRange)
 	selectInt(x uint16) int                  // selectInt returns the xth integer in the Container
-	serializedSizeInBytes() int
+	SerializedSizeInBytes() int
 	readFrom(io.Reader) (int, error)
-	writeTo(io.Writer) (int, error)
+	WriteTo(io.Writer) (int, error)
 
 	numberOfRuns() int
 	toEfficientContainer() Container
@@ -477,7 +477,7 @@ func (ra *roaringArray) headerSize() uint64 {
 func (ra *roaringArray) serializedSizeInBytes() uint64 {
 	answer := ra.headerSize()
 	for _, c := range ra.containers {
-		answer += uint64(c.serializedSizeInBytes())
+		answer += uint64(c.SerializedSizeInBytes())
 	}
 	return answer
 }
@@ -557,7 +557,7 @@ func (ra *roaringArray) writeTo(w io.Writer) (n int64, err error) {
 	n += int64(written)
 
 	for _, c := range ra.containers {
-		written, err := c.writeTo(w)
+		written, err := c.WriteTo(w)
 		if err != nil {
 			return n, err
 		}

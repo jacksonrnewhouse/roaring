@@ -230,7 +230,7 @@ func TestArrayContainerNumberOfRuns025(t *testing.T) {
 					So(acNr, ShouldEqual, rcNr)
 
 					// get coverage of arrayContainer coners...
-					So(ac.serializedSizeInBytes(), ShouldEqual, 2*len(ma))
+					So(ac.SerializedSizeInBytes(), ShouldEqual, 2*len(ma))
 
 					So(func() { ac.iaddRange(2, 1) }, ShouldNotPanic)
 					So(func() { ac.iremoveRange(2, 1) }, ShouldNotPanic)

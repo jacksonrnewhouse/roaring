@@ -48,7 +48,7 @@ func (ac *arrayContainer) getSizeInBytes() int {
 	return ac.GetCardinality() * 2
 }
 
-func (ac *arrayContainer) serializedSizeInBytes() int {
+func (ac *arrayContainer) SerializedSizeInBytes() int {
 	return ac.GetCardinality() * 2
 }
 
