@@ -110,7 +110,10 @@ func ContainerFromBytes(bytes []byte) Container {
 }
 
 func ContainerFromShorts(shorts []uint16) Container {
-	return (&arrayContainer{shorts}).toEfficientContainer()
+	if len(shorts) > 4094 {
+		return (&arrayContainer{shorts}).toBitmapContainer()
+	}
+	return &arrayContainer{shorts}
 }
 
 type roaringArray struct {
