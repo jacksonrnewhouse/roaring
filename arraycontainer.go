@@ -19,6 +19,10 @@ func offsetIntersection2by2Cardinality(
 	leftOffset int, leftLength int, leftShorts []uint16,
 	rightOffset int, rightLength int, rightShorts []uint16) int {
 
+	if leftLength == 0 || rightLength == 0 {
+		return 0
+	}
+
 	if leftLength*64 < rightLength {
 		return offsetOnesidedgallopingintersect2by2Cardinality(
 			leftOffset, leftLength, leftShorts,
