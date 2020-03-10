@@ -73,8 +73,6 @@ type Container interface {
 	toEfficientContainer() Container
 	String() string
 	containerType() contype
-
-
 }
 
 type contype uint8

@@ -57,11 +57,11 @@ type runContainer16 struct {
 }
 
 func (b *runContainer16) EfficientArrayAndCardinality(start int, length int, shorts []uint16) int {
-	return b.AndCardinality(&arrayContainer{content:shorts[start:start+length]})
+	return b.AndCardinality(&arrayContainer{content: shorts[start : start+length]})
 }
 
 func (b *runContainer16) EfficientBitmapAndCardinality(offset int, bitmaps []uint64) int {
-	return b.AndCardinality(&bitmapContainer{bitmap:bitmaps[offset:offset + 1024]})
+	return b.AndCardinality(&bitmapContainer{bitmap: bitmaps[offset : offset+1024]})
 }
 
 // interval16 is the internal to runContainer16

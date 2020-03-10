@@ -38,7 +38,6 @@ func offsetIntersection2by2Cardinality(
 	}
 }
 
-
 func offsetLocalintersect2by2Cardinality(
 	leftOffset int, leftLength int, leftShorts []uint16,
 	rightOffset int, rightLength int, rightShorts []uint16) int {
@@ -97,7 +96,6 @@ mainwhile:
 	return pos
 }
 
-
 func offsetOnesidedgallopingintersect2by2Cardinality(
 	smallOffset int, smallLength int, smallShorts []uint16,
 	largeOffset int, largeLength int, largeShorts []uint16) int {
@@ -117,14 +115,14 @@ mainwhile:
 	for {
 		if s1 < s2 {
 			k1 = advanceUntil(largeShorts, k1, largeEnd, s2)
-			if k1 ==  largeEnd {
+			if k1 == largeEnd {
 				break mainwhile
 			}
 			s1 = largeShorts[k1]
 		}
 		if s2 < s1 {
 			k2++
-			if k2 ==  smallEnd {
+			if k2 == smallEnd {
 				break mainwhile
 			}
 			s2 = smallShorts[k2]
@@ -954,11 +952,10 @@ func (ac *arrayContainer) andArray(value2 *arrayContainer) Container {
 }
 
 func (ac *arrayContainer) andArrayCardinality(value2 *arrayContainer) int {
-	shifted := make([]uint16, len(value2.content) + 2)
-	for i, val := range(value2.content) {
-		shifted[i+1] = val
-	}
-	return ac.EfficientArrayAndCardinality(1, len(value2.content), value2.content)
+	return intersection2by2Cardinality(
+		ac.content,
+		value2.content)
+
 }
 
 func (ac *arrayContainer) intersectsArray(value2 *arrayContainer) bool {
