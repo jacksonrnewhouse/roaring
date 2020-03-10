@@ -10,6 +10,143 @@ type arrayContainer struct {
 	content []uint16
 }
 
+func (ac *arrayContainer) EfficientArrayAndCardinality(start int, length int, shorts []uint16) int {
+	return offsetIntersection2by2Cardinality(0, len(ac.content), ac.content,
+		start, length, shorts)
+}
+
+func offsetIntersection2by2Cardinality(
+	leftOffset int, leftLength int, leftShorts []uint16,
+	rightOffset int, rightLength int, rightShorts []uint16) int {
+
+	if leftLength*64 < rightLength {
+		return offsetOnesidedgallopingintersect2by2Cardinality(
+			leftOffset, leftLength, leftShorts,
+			rightOffset, rightLength, rightShorts)
+	} else if rightLength*64 < rightLength {
+		return offsetOnesidedgallopingintersect2by2Cardinality(
+			rightOffset, rightLength, rightShorts,
+			leftOffset, leftLength, leftShorts)
+	} else {
+		return offsetLocalintersect2by2Cardinality(
+			leftOffset, leftLength, leftShorts,
+			rightOffset, rightLength, rightShorts)
+	}
+}
+
+
+func offsetLocalintersect2by2Cardinality(
+	leftOffset int, leftLength int, leftShorts []uint16,
+	rightOffset int, rightLength int, rightShorts []uint16) int {
+
+	if 0 == leftLength || 0 == rightLength {
+		return 0
+	}
+	k1 := leftOffset
+	k2 := rightOffset
+	leftEnd := leftOffset + leftLength
+	rightEnd := rightOffset + rightLength
+	pos := 0
+	s1 := leftShorts[k1]
+	s2 := rightShorts[k2]
+mainwhile:
+	for {
+		if s2 < s1 {
+			for {
+				k2++
+				if k2 == rightEnd {
+					break mainwhile
+				}
+				s2 = rightShorts[k2]
+				if s2 >= s1 {
+					break
+				}
+			}
+		}
+		if s1 < s2 {
+			for {
+				k1++
+				if k1 == leftEnd {
+					break mainwhile
+				}
+				s1 = leftShorts[k1]
+				if s1 >= s2 {
+					break
+				}
+			}
+
+		} else {
+			// (set2[k2] == set1[k1])
+			pos++
+			k1++
+			if k1 == leftEnd {
+				break
+			}
+			s1 = leftShorts[k1]
+			k2++
+			if k2 == rightEnd {
+				break
+			}
+			s2 = rightShorts[k2]
+		}
+	}
+	return pos
+}
+
+
+func offsetOnesidedgallopingintersect2by2Cardinality(
+	smallOffset int, smallLength int, smallShorts []uint16,
+	largeOffset int, largeLength int, largeShorts []uint16) int {
+
+	if 0 == smallLength {
+		return 0
+	}
+	k1 := smallOffset
+	k2 := largeOffset
+	smallEnd := smallOffset + smallLength
+	largeEnd := largeOffset + largeLength
+	pos := 0
+	s1 := largeShorts[k1]
+	s2 := smallShorts[k2]
+mainwhile:
+
+	for {
+		if s1 < s2 {
+			k1 = advanceUntil(largeShorts, k1, largeEnd, s2)
+			if k1 ==  largeEnd {
+				break mainwhile
+			}
+			s1 = largeShorts[k1]
+		}
+		if s2 < s1 {
+			k2++
+			if k2 ==  smallEnd {
+				break mainwhile
+			}
+			s2 = smallShorts[k2]
+		} else {
+
+			pos++
+			k2++
+			if k2 == smallEnd {
+				break
+			}
+			s2 = smallShorts[k2]
+			k1 = advanceUntil(largeShorts, k1, largeEnd, s2)
+			if k1 == largeEnd {
+				break mainwhile
+			}
+			s1 = largeShorts[k1]
+		}
+
+	}
+	return pos
+}
+
+func (ac *arrayContainer) EfficientBitmapAndCardinality(offset int, bitmaps []uint64) int {
+	return bitmapArrayOffsetAndCardinality(offset, bitmaps, 0, len(ac.content), ac.content)
+}
+
 func (ac *arrayContainer) String() string {
 	s := "{"
 	for it := ac.getShortIterator(); it.hasNext(); {
@@ -813,9 +950,11 @@ func (ac *arrayContainer) andArray(value2 *arrayContainer) Container {
 }
 
 func (ac *arrayContainer) andArrayCardinality(value2 *arrayContainer) int {
-	return intersection2by2Cardinality(
-		ac.content,
-		value2.content)
+	shifted := make([]uint16, len(value2.content) + 2)
+	for i, val := range(value2.content) {
+		shifted[i+1] = val
+	}
+	return ac.EfficientArrayAndCardinality(1, len(value2.content), value2.content)
 }
 
 func (ac *arrayContainer) intersectsArray(value2 *arrayContainer) bool {

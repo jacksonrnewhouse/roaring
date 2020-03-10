@@ -19,6 +19,8 @@ type Container interface {
 	clone() Container
 	And(Container) Container
 	AndCardinality(Container) int
+	EfficientArrayAndCardinality(start int, length int, shorts []uint16) int
+	EfficientBitmapAndCardinality(offset int, bitmaps []uint64) int
 	iand(Container) Container // i stands for inplace
 	AndNot(Container) Container
 	iandNot(Container) Container // i stands for inplace
@@ -71,6 +73,8 @@ type Container interface {
 	toEfficientContainer() Container
 	String() string
 	containerType() contype
+
+
 }
 
 type contype uint8

@@ -12,6 +12,35 @@ type bitmapContainer struct {
 	bitmap      []uint64
 }
 
+func (bc bitmapContainer) EfficientArrayAndCardinality(start int, length int, shorts []uint16) int {
+	return bitmapArrayOffsetAndCardinality(0, bc.bitmap, start, length, shorts)
+}
+
+func bitmapArrayOffsetAndCardinality(bitmapStart int, bitmapData []uint64,
+	arrayStart int, arrayLength int, arrayContent []uint16) int {
+	pos := 0
+	for k := 0; k < arrayLength; k++ {
+		v := arrayContent[arrayStart + k]
+		pos += int(bitValue(v, bitmapStart, bitmapData))
+	}
+	return pos
+}
+
+
+func  bitValue(i uint16, bitmapStart int, bitmapData []uint64) uint64 {
+	x := uint(i)
+	w := bitmapData[bitmapStart + int(x>>6)]
+	return (w >> (x & 63)) & 1
+}
+
+func (bc bitmapContainer) EfficientBitmapAndCardinality(offset int, bitmaps []uint64) int {
+	cnt := uint64(0)
+	for i := range bc.bitmap {
+		cnt += popcount(bc.bitmap[i] &  bitmaps[offset + i])
+	}
+	return int(cnt)
+}
+
 func (bc bitmapContainer) String() string {
 	var s string
 	for it := bc.getShortIterator(); it.hasNext(); {
