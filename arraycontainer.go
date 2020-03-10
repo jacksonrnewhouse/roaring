@@ -103,8 +103,8 @@ func offsetOnesidedgallopingintersect2by2Cardinality(
 	if 0 == smallLength {
 		return 0
 	}
-	k1 := smallOffset
-	k2 := largeOffset
+	k1 := largeOffset
+	k2 := smallOffset
 	smallEnd := smallOffset + smallLength
 	largeEnd := largeOffset + largeLength
 	pos := 0
