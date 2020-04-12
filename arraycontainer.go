@@ -10,6 +10,10 @@ type arrayContainer struct {
 	content []uint16
 }
 
+func NewArrayContainerFromBytes(data []byte) Container {
+	return &arrayContainer{byteSliceAsUint16Slice(data)}
+}
+
 func (ac *arrayContainer) String() string {
 	s := "{"
 	for it := ac.getShortIterator(); it.hasNext(); {

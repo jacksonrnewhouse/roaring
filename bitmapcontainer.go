@@ -12,6 +12,17 @@ type bitmapContainer struct {
 	bitmap      []uint64
 }
 
+func NewRoaringBitmapFromBytes(bytes []byte) Container {
+	if len(bytes) != 8192 {
+		panic("bad bytes")
+	}
+	result := &bitmapContainer{
+		bitmap: byteSliceAsUint64Slice(bytes),
+	}
+	result.computeCardinality()
+	return result
+}
+
 func (bc bitmapContainer) String() string {
 	var s string
 	for it := bc.getShortIterator(); it.hasNext(); {
