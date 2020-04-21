@@ -109,6 +109,17 @@ func ContainerFromBytes(bytes []byte) Container {
 	}
 }
 
+func ContainerFromBitmapBytes(bytes []byte) Container {
+	if len(bytes) != 8192 {
+		panic("slice must be 8192 bytes")
+	}
+	return &bitmapContainer{bitmap: byteSliceAsUint64Slice(bytes)}
+}
+
+func ContainerFromArrayBytes(bytes []byte) Container {
+	return &arrayContainer{byteSliceAsUint16Slice(bytes)}
+}
+
 func ContainerFromShorts(shorts []uint16) Container {
 	if len(shorts) > 4094 {
 		return (&arrayContainer{shorts}).toBitmapContainer()
