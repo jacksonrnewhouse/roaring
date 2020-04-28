@@ -113,7 +113,9 @@ func ContainerFromBitmapBytes(bytes []byte) Container {
 	if len(bytes) != 8192 {
 		panic("slice must be 8192 bytes")
 	}
-	return &bitmapContainer{bitmap: byteSliceAsUint64Slice(bytes)}
+	container := &bitmapContainer{bitmap: byteSliceAsUint64Slice(bytes)}
+	container.computeCardinality()
+	return container
 }
 
 func ContainerFromArrayBytes(bytes []byte) Container {
