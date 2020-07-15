@@ -12,6 +12,74 @@ import (
 
 // BENCHMARKS, to run them type "go test -bench Benchmark -run -"
 
+// BenchmarkArrayIorEndsUpBitmap tests performance when the union
+// of two bitmaps ends up being over arrayDefaultMaxSize
+func BenchmarkArrayIorEntirelyOverlaps(b *testing.B) {
+	left := newArrayContainer()
+	right := newArrayContainer()
+	oddPoint := 4000
+	for i := 0; i < 5000; i++ {
+		if i%2 == 0 {
+			left.iadd(uint16(i))
+		}
+		if i%2 == 0 && i < oddPoint {
+			right.iadd(uint16(i))
+		} else if i%2 == 1 && i >= oddPoint {
+			right.iadd(uint16(i))
+		}
+	}
+	b.Run("still-array", func(b *testing.B) {
+		for i := 0; i < 20000; i++ {
+			right.clone().ior(left)
+		}
+	})
+}
+
+// BenchmarkArrayIorBarelyOverlaps tests two array containers that only barely overlap.
+func BenchmarkArrayIorbarelyOverlaps(b *testing.B) {
+	left := newArrayContainer()
+	right := newArrayContainer()
+	oddPoint := 2000
+	for i := 0; i < 5000; i++ {
+		if i%2 == 0 {
+			left.iadd(uint16(i))
+		}
+		if i%2 == 0 && i < oddPoint {
+			right.iadd(uint16(i))
+		} else if i%2 == 1 && i >= oddPoint {
+			right.iadd(uint16(i))
+		}
+	}
+	b.Run("barely-still-array", func(b *testing.B) {
+		for i := 0; i < 20000; i++ {
+			right.clone().ior(left)
+		}
+	})
+}
+
+// BenchmarkArrayIorEndsUpBitmap tests performance when the union
+// of two bitmaps ends up being over arrayDefaultMaxSize
+func BenchmarkArrayIorEndsUpBitmap(b *testing.B) {
+	left := newArrayContainer()
+	right := newArrayContainer()
+	oddPoint := 0
+	for i := 0; i < 5000; i++ {
+		if i%2 == 0 {
+			left.iadd(uint16(i))
+		}
+		if i%2 == 0 && i < oddPoint {
+			right.iadd(uint16(i))
+		} else if i%2 == 1 && i >= oddPoint {
+			right.iadd(uint16(i))
+		}
+	}
+	b.Run("now-bitmap", func(b *testing.B) {
+		for i := 0; i < 20000; i++ {
+			right.clone().ior(left)
+		}
+	})
+}
+
 // go test -bench BenchmarkOrs -benchmem -run -
 func BenchmarkOrs(b *testing.B) {
 
