@@ -1001,6 +1001,291 @@ main:
 	}
 }
 
+// Or computes the union between two bitmaps and stores the result in the current bitmap
+func (rb *Bitmap) SlowByteOr(bytes []byte) {
+	x2 := NewBitmap()
+	x2.FromBuffer(bytes)
+	pos1 := 0
+	pos2 := 0
+	length1 := rb.highlowcontainer.size()
+	length2 := x2.highlowcontainer.size()
+main:
+	for (pos1 < length1) && (pos2 < length2) {
+		s1 := rb.highlowcontainer.getKeyAtIndex(pos1)
+		s2 := x2.highlowcontainer.getKeyAtIndex(pos2)
+
+		for {
+			if s1 < s2 {
+				pos1++
+				if pos1 == length1 {
+					break main
+				}
+				s1 = rb.highlowcontainer.getKeyAtIndex(pos1)
+			} else if s1 > s2 {
+				rb.highlowcontainer.insertNewKeyValueAt(pos1, s2, x2.highlowcontainer.getContainerAtIndex(pos2).clone())
+				pos1++
+				length1++
+				pos2++
+				if pos2 == length2 {
+					break main
+				}
+				s2 = x2.highlowcontainer.getKeyAtIndex(pos2)
+			} else {
+				rb.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, rb.highlowcontainer.getWritableContainerAtIndex(pos1).ior(x2.highlowcontainer.getContainerAtIndex(pos2)), false)
+				pos1++
+				pos2++
+				if (pos1 == length1) || (pos2 == length2) {
+					break main
+				}
+				s1 = rb.highlowcontainer.getKeyAtIndex(pos1)
+				s2 = x2.highlowcontainer.getKeyAtIndex(pos2)
+			}
+		}
+	}
+	if pos1 == length1 {
+		rb.highlowcontainer.appendCopyMany(x2.highlowcontainer, pos2, length2)
+	}
+}
+
+// Or computes the union between two bitmaps and stores the result in the current bitmap
+func (rb *Bitmap) FastByteOr(bytes []byte) {
+	stream := byteBufferPool.Get().(*byteBuffer)
+	stream.reset(bytes)
+
+	cookie, err := stream.readUInt32()
+
+	if err != nil {
+		panic("error reading container")
+	}
+
+	var size uint32
+	var isRunBitmap []byte
+
+	if cookie&0x0000FFFF == serialCookie {
+		size = uint32(uint16(cookie>>16) + 1)
+		// create is-run-container bitmap
+		isRunBitmapSize := (int(size) + 7) / 8
+		isRunBitmap, err = stream.next(isRunBitmapSize)
+
+		if err != nil {
+			panic("error reading container")
+		}
+	} else if cookie == serialCookieNoRunContainer {
+		size, err = stream.readUInt32()
+
+		if err != nil {
+			panic("error reading container")
+		}
+	} else {
+		panic("error reading container")
+	}
+
+	if size > (1 << 16) {
+		panic("error reading container")
+	}
+	if size == 0 {
+		return
+	}
+
+	/*// descriptive header
+	buf, err := stream.next(2 * 2 * int(size))
+
+	if err != nil {
+		panic("error reading container")
+	}
+
+	keycard := byteSliceAsUint16Slice(buf)
+
+	if isRunBitmap == nil || size >= noOffsetThreshold {
+		if err := stream.skipBytes(int(size) * 4); err != nil {
+			panic("error reading container")
+		}
+	}
+
+	// Allocate slices upfront as number of containers is known
+	if cap(ra.containers) >= int(size) {
+		ra.containers = ra.containers[:size]
+	} else {
+		ra.containers = make([]container, size)
+	}
+
+	if cap(ra.keys) >= int(size) {
+		ra.keys = ra.keys[:size]
+	} else {
+		ra.keys = make([]uint16, size)
+	}
+
+	if cap(ra.needCopyOnWrite) >= int(size) {
+		ra.needCopyOnWrite = ra.needCopyOnWrite[:size]
+	} else {
+		ra.needCopyOnWrite = make([]bool, size)
+	}
+
+	for i := uint32(0); i < size; i++ {
+		key := keycard[2*i]
+		card := int(keycard[2*i+1]) + 1
+		ra.keys[i] = key
+		ra.needCopyOnWrite[i] = true
+
+		if isRunBitmap != nil && isRunBitmap[i/8]&(1<<(i%8)) != 0 {
+			// run container
+			nr, err := stream.readUInt16()
+
+			if err != nil {
+				panic("error reading container")
+			}
+
+			buf, err := stream.next(int(nr) * 4)
+
+			if err != nil {
+				panic("error reading container")
+			}
+
+			nb := runContainer16{
+				iv:   byteSliceAsInterval16Slice(buf),
+				card: int64(card),
+			}
+
+			ra.containers[i] = &nb
+		} else if card > arrayDefaultMaxSize {
+			// bitmap container
+			buf, err := stream.next(arrayDefaultMaxSize * 2)
+
+			if err != nil {
+				panic("error reading container")
+			}
+
+			nb := bitmapContainer{
+				cardinality: card,
+				bitmap:      byteSliceAsUint64Slice(buf),
+			}
+
+			ra.containers[i] = &nb
+		} else {
+			// array container
+			buf, err := stream.next(card * 2)
+
+			if err != nil {
+				panic("error reading container")
+			}
+
+			nb := arrayContainer{
+				byteSliceAsUint16Slice(buf),
+			}
+
+			ra.containers[i] = &nb
+		}
+	}*/
+	buf, err := stream.next(2 * 2 * int(size))
+
+	if err != nil {
+		panic("error reading container")
+	}
+
+	keycard := byteSliceAsUint16Slice(buf)
+
+	if isRunBitmap == nil || size >= noOffsetThreshold {
+		if err := stream.skipBytes(int(size) * 4); err != nil {
+			panic("error reading container")
+		}
+	}
+
+	pos1 := 0
+	pos2 := 0
+	length1 := rb.highlowcontainer.size()
+	length2 := int(size)
+main:
+	for (pos1 < length1) && (pos2 < length2) {
+		s1 := rb.highlowcontainer.getKeyAtIndex(pos1)
+		s2 := keycard[2*pos2]
+
+		for {
+			if s1 < s2 {
+				pos1++
+				if pos1 == length1 {
+					break main
+				}
+				s1 = rb.highlowcontainer.getKeyAtIndex(pos1)
+			} else if s1 > s2 {
+				nb := getContainerFromReader(stream, keycard, isRunBitmap, pos2)
+				rb.highlowcontainer.insertNewKeyValueAt(pos1, s2, nb)
+				pos1++
+				length1++
+				pos2++
+				if pos2 == length2 {
+					break main
+				}
+				s2 = keycard[2*pos2]
+			} else {
+				rb.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, rb.highlowcontainer.getWritableContainerAtIndex(pos1).ior(getContainerFromReader(stream, keycard, isRunBitmap, pos2)), false)
+				pos1++
+				pos2++
+				if (pos1 == length1) || (pos2 == length2) {
+					break main
+				}
+				s1 = rb.highlowcontainer.getKeyAtIndex(pos1)
+				s2 = keycard[2*pos2]
+			}
+		}
+	}
+	for pos1 == length1 && pos2 < length2 {
+		rb.highlowcontainer.appendContainer(keycard[2*pos2], getContainerFromReader(stream, keycard, isRunBitmap, pos2), true)
+		pos2++
+	}
+
+	byteBufferPool.Put(stream)
+}
+
+func getContainerFromReader(stream byteInput, keycard []uint16, isRunBitmap []byte, pos int) container {
+	card := int(keycard[2*pos+1]) + 1
+
+	if isRunBitmap != nil && isRunBitmap[pos/8]&(1<<(pos%8)) != 0 {
+		// run container
+		nr, err := stream.readUInt16()
+
+		if err != nil {
+			panic("error reading container")
+		}
+
+		buf, err := stream.next(int(nr) * 4)
+
+		if err != nil {
+			panic("error reading container")
+		}
+
+		nb := runContainer16{
+			iv:   byteSliceAsInterval16Slice(buf),
+			card: int64(card),
+		}
+		return &nb
+	} else if card > arrayDefaultMaxSize {
+		// bitmap container
+		buf, err := stream.next(arrayDefaultMaxSize * 2)
+
+		if err != nil {
+			panic("error reading container")
+		}
+
+		nb := bitmapContainer{
+			cardinality: card,
+			bitmap:      byteSliceAsUint64Slice(buf),
+		}
+		return &nb
+	} else {
+		// array container
+		buf, err := stream.next(card * 2)
+
+		if err != nil {
+			panic("error reading container")
+		}
+
+		nb := arrayContainer{
+			byteSliceAsUint16Slice(buf),
+		}
+		return &nb
+	}
+}
+
 // AndNot computes the difference between two bitmaps and stores the result in the current bitmap
 func (rb *Bitmap) AndNot(x2 *Bitmap) {
 	pos1 := 0

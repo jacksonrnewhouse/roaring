@@ -12,12 +12,36 @@ import (
 
 // BENCHMARKS, to run them type "go test -bench Benchmark -run -"
 
+// BenchmarkArrayIorEndsUpBitmap tests performance when the union
+// of two bitmaps ends up being over arrayDefaultMaxSize
+func BenchmarkArrayIorEndsUpArray(b *testing.B) {
+	left := newArrayContainer()
+	right := newArrayContainer()
+	left.iaddRange(0, 3096)
+	right.iaddRange(512, 3096+512)
+	b.Run("still-array", func(b *testing.B) {
+		right.clone().ior(left)
+	})
+}
+
+// BenchmarkArrayIorEndsUpBitmap tests performance when the union
+// of two bitmaps ends up being over arrayDefaultMaxSize
+func BenchmarkArrayIorEndsUpBitmap(b *testing.B) {
+	left := newArrayContainer()
+	right := newArrayContainer()
+	left.iaddRange(0, 3096)
+	right.iaddRange(2096, 3096+2096)
+	b.Run("now-bitmap", func(b *testing.B) {
+		right.clone().ior(left)
+	})
+}
+
 // go test -bench BenchmarkOrs -benchmem -run -
 func BenchmarkOrs(b *testing.B) {
 
 	bms := []*Bitmap{}
-	maxCount := 50
-	domain := 100000000
+	maxCount := 20000
+	domain := 10 << 16
 	bitmapCount := 100
 	for i := 0; i < bitmapCount; i++ {
 		newBm := NewBitmap()

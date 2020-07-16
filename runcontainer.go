@@ -56,6 +56,11 @@ type runContainer16 struct {
 	myOpts searchOptions `msg:"-"`
 }
 
+func (rc *runContainer16) iOrderedShorts(input byteInput, shorts int) container {
+	data, _ := input.next(2 * shorts)
+	return rc.ior(&arrayContainer{byteSliceAsUint16Slice(data)})
+}
+
 // interval16 is the internal to runContainer16
 // structure that maintains the individual [start, last]
 // closed intervals.

@@ -10,6 +10,10 @@ type arrayContainer struct {
 	content []uint16
 }
 
+func (ac *arrayContainer) iOrderedShorts(input byteInput, shorts int) container {
+	panic("implement me")
+}
+
 func (ac *arrayContainer) String() string {
 	s := "{"
 	for it := ac.getShortIterator(); it.hasNext(); {

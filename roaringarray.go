@@ -55,7 +55,8 @@ type container interface {
 	or(r container) container
 	orCardinality(r container) int
 	isFull() bool
-	ior(r container) container   // i stands for inplace
+	ior(r container) container // i stands for inplace
+	iOrderedShorts(input byteInput, shorts int) container
 	intersects(r container) bool // whether the two containers intersect
 	lazyOR(r container) container
 	lazyIOR(r container) container

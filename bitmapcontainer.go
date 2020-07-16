@@ -12,6 +12,11 @@ type bitmapContainer struct {
 	bitmap      []uint64
 }
 
+func (b *bitmapContainer) iOrderedShorts(input byteInput, shorts int) container {
+	data, _ := input.next(2 * shorts)
+	return b.ior(&arrayContainer{byteSliceAsUint16Slice(data)})
+}
+
 func (bc bitmapContainer) String() string {
 	var s string
 	for it := bc.getShortIterator(); it.hasNext(); {
