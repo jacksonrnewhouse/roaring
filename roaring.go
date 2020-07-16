@@ -1217,7 +1217,14 @@ main:
 				}
 				s2 = keycard[2*pos2]
 			} else {
-				rb.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, rb.highlowcontainer.getWritableContainerAtIndex(pos1).ior(getContainerFromReader(stream, keycard, isRunBitmap, pos2)), false)
+				writableContainer := rb.highlowcontainer.getWritableContainerAtIndex(pos1)
+				card := int(keycard[2*pos2+1]) + 1
+				if !(isRunBitmap != nil && isRunBitmap[pos2/8]&(1<<(pos2%8)) != 0) && card <= arrayDefaultMaxSize {
+					writableContainer = writableContainer.iOrderedShorts(stream, card)
+				} else {
+					writableContainer = writableContainer.ior(getContainerFromReader(stream, keycard, isRunBitmap, pos2))
+				}
+				rb.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, writableContainer, false)
 				pos1++
 				pos2++
 				if (pos1 == length1) || (pos2 == length2) {

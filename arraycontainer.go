@@ -11,7 +11,24 @@ type arrayContainer struct {
 }
 
 func (ac *arrayContainer) iOrderedShorts(input byteInput, shorts int) container {
-	panic("implement me")
+	value1 := ac
+	len1 := value1.getCardinality()
+	len2 := shorts
+	maxPossibleCardinality := len1 + len2
+	if maxPossibleCardinality > cap(value1.content) {
+		newcontent := make([]uint16, 0, maxPossibleCardinality)
+		copy(newcontent[len2:maxPossibleCardinality], ac.content[0:len1])
+		ac.content = newcontent
+	} else {
+		copy(ac.content[len2:maxPossibleCardinality], ac.content[0:len1])
+	}
+	bytes, _ := input.next(2 * shorts)
+	nl := union2by2(value1.content[len2:maxPossibleCardinality], byteSliceAsUint16Slice(bytes), ac.content)
+	ac.content = ac.content[:nl] // reslice to match actual used capacity
+	if nl > arrayDefaultMaxSize {
+		return ac.toBitmapContainer()
+	}
+	return ac
 }
 
 func (ac *arrayContainer) String() string {
