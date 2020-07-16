@@ -14,13 +14,46 @@ import (
 
 // BenchmarkArrayIorEndsUpBitmap tests performance when the union
 // of two bitmaps ends up being over arrayDefaultMaxSize
-func BenchmarkArrayIorEndsUpArray(b *testing.B) {
+func BenchmarkArrayIorEntirelyOverlaps(b *testing.B) {
 	left := newArrayContainer()
 	right := newArrayContainer()
-	left.iaddRange(0, 3096)
-	right.iaddRange(512, 3096+512)
+	oddPoint := 4000
+	for i := 0; i < 5000; i++ {
+		if i%2 == 0 {
+			left.iadd(uint16(i))
+		}
+		if i%2 == 0 && i < oddPoint {
+			right.iadd(uint16(i))
+		} else if i%2 == 1 && i >= oddPoint {
+			right.iadd(uint16(i))
+		}
+	}
 	b.Run("still-array", func(b *testing.B) {
-		right.clone().ior(left)
+		for i := 0; i < 20000; i++ {
+			right.clone().ior(left)
+		}
+	})
+}
+
+// BenchmarkArrayIorBarelyOverlaps tests two array containers that only barely overlap.
+func BenchmarkArrayIorbarelyOverlaps(b *testing.B) {
+	left := newArrayContainer()
+	right := newArrayContainer()
+	oddPoint := 2000
+	for i := 0; i < 5000; i++ {
+		if i%2 == 0 {
+			left.iadd(uint16(i))
+		}
+		if i%2 == 0 && i < oddPoint {
+			right.iadd(uint16(i))
+		} else if i%2 == 1 && i >= oddPoint {
+			right.iadd(uint16(i))
+		}
+	}
+	b.Run("barely-still-array", func(b *testing.B) {
+		for i := 0; i < 20000; i++ {
+			right.clone().ior(left)
+		}
 	})
 }
 
@@ -29,10 +62,21 @@ func BenchmarkArrayIorEndsUpArray(b *testing.B) {
 func BenchmarkArrayIorEndsUpBitmap(b *testing.B) {
 	left := newArrayContainer()
 	right := newArrayContainer()
-	left.iaddRange(0, 3096)
-	right.iaddRange(2096, 3096+2096)
+	oddPoint := 0
+	for i := 0; i < 5000; i++ {
+		if i%2 == 0 {
+			left.iadd(uint16(i))
+		}
+		if i%2 == 0 && i < oddPoint {
+			right.iadd(uint16(i))
+		} else if i%2 == 1 && i >= oddPoint {
+			right.iadd(uint16(i))
+		}
+	}
 	b.Run("now-bitmap", func(b *testing.B) {
-		right.clone().ior(left)
+		for i := 0; i < 20000; i++ {
+			right.clone().ior(left)
+		}
 	})
 }
 
