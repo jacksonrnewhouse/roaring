@@ -1209,6 +1209,7 @@ main:
 			} else if s1 > s2 {
 				nb := getContainerFromReader(stream, keycard, isRunBitmap, pos2)
 				rb.highlowcontainer.insertNewKeyValueAt(pos1, s2, nb)
+				rb.highlowcontainer.needCopyOnWrite[pos1] = true
 				pos1++
 				length1++
 				pos2++
