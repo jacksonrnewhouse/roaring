@@ -14,7 +14,7 @@ const (
 	containerDescriptionStart = uint32(8)
 	bytesPerContainer         = uint32(4)
 
-	maxContainers          = uint32(256)
+	maxContainers          = uint32(320)
 	fatWritableSliceLength = int(maxContainers * containerStorageBytes)
 
 	// 0: 2 bytes for key,
