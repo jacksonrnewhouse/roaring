@@ -233,8 +233,11 @@ func (bitmap *RoaringBitmap) increaseMaxContainers(newValue uint32) {
 }
 
 func (bitmap *RoaringBitmap) Free() {
-	if bitmap != nil && bitmap.writable && len(bitmap.data) > 0 {
-		writableArrayPool.Put(bitmap.data)
+	if bitmap != nil && len(bitmap.data) > 0 {
+		if bitmap.writable {
+			writableArrayPool.Put(bitmap.data)
+		}
+		bitmap.data = nil
 	}
 }
 
