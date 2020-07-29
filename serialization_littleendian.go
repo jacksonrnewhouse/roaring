@@ -89,6 +89,28 @@ func byteSliceAsUint16Slice(slice []byte) (result []uint16) { // here we create 
 	return
 }
 
+func byteSliceAsUint32Slice(slice []byte) (result []uint32) { // here we create a new slice holder
+	if len(slice)%2 != 0 {
+		panic("Slice size should be divisible by 4")
+	}
+	// reference: https://go101.org/article/unsafe.html
+
+	// make a new slice header
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+
+	// transfer the data from the given slice to a new variable (our result)
+	rHeader.Data = bHeader.Data
+	rHeader.Len = bHeader.Len / 4
+	rHeader.Cap = bHeader.Cap / 4
+
+	// instantiate result and use KeepAlive so data isn't unmapped.
+	runtime.KeepAlive(&slice) // it is still crucial, GC can free it)
+
+	// return result
+	return
+}
+
 func byteSliceAsUint64Slice(slice []byte) (result []uint64) {
 	if len(slice)%8 != 0 {
 		panic("Slice size should be divisible by 8")

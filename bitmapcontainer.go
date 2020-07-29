@@ -12,6 +12,38 @@ type bitmapContainer struct {
 	bitmap      []uint64
 }
 
+func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		x := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data))
+		if x.isFull() {
+			return x.clone()
+		}
+		for i := range x.iv {
+			b.iaddRange(int(x.iv[i].start), int(x.iv[i].last())+1)
+		}
+		if b.isFull() {
+			return newRunContainer16Range(0, MaxUint16)
+		}
+		return nil
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+			vc := ReadSingleShort(data, pointer)
+			i := uint(vc) >> 6
+			bef := b.bitmap[i]
+			aft := bef | (uint64(1) << (vc % 64))
+			b.bitmap[i] = aft
+			b.cardinality += int((bef - aft) >> 63)
+		}
+		return nil
+	} else {
+		for k := 0; k < len(b.bitmap); k++ {
+			b.bitmap[k] |= ReadSingleLong(data, 4*uint32(k))
+		}
+		b.computeCardinality()
+		return nil
+	}
+}
+
 func (bc bitmapContainer) String() string {
 	var s string
 	for it := bc.getShortIterator(); it.hasNext(); {

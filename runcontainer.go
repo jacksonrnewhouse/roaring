@@ -56,6 +56,27 @@ type runContainer16 struct {
 	myOpts searchOptions `msg:"-"`
 }
 
+func (rc *runContainer16) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		// this is safe to do in place since other doesn't escape.
+		// dependent on lots of implementation details.
+		other := newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data[2:]))
+		rc.inplaceUnion(other)
+		// inplaceUnion never alters rc
+		return nil
+	} else {
+		if cardMinusOne < arrayDefaultMaxSize {
+			for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+				rc.Add(ReadSingleShort(data, 2*pointer))
+			}
+			return nil
+		}
+		rc.iorBitmapContainer(&bitmapContainer{cardinality: int(cardMinusOne) + 1,
+			bitmap: byteSliceAsUint64Slice(data)})
+		return nil
+	}
+}
+
 // interval16 is the internal to runContainer16
 // structure that maintains the individual [start, last]
 // closed intervals.
