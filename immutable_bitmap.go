@@ -158,7 +158,7 @@ func (bitmap *ImmutableBitmap) GetCardinality() uint64 {
 	return result
 }
 
-func (bitmap *Bitmap) computeOrAgainst(x2 *ImmutableBitmap) {
+func (bitmap *Bitmap) OrAgainstImmutable(x2 *ImmutableBitmap) {
 	pos1 := 0
 	pos2 := 0
 	length1 := bitmap.highlowcontainer.size()
