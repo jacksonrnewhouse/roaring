@@ -55,7 +55,11 @@ type container interface {
 	or(r container) container
 	orCardinality(r container) int
 	isFull() bool
-	ior(r container) container   // i stands for inplace
+	ior(r container) container // i stands for inplace
+	// this avoids overhead of creating a container.
+	// returning nil signals that the container was successfully mutated in place,
+	// so it doesn't need to be reinserted
+	iorBytes(isRun bool, cardMinusOne uint16, data []byte) container
 	intersects(r container) bool // whether the two containers intersect
 	lazyOR(r container) container
 	lazyIOR(r container) container
