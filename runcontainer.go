@@ -66,7 +66,7 @@ func (rc *runContainer16) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 		return nil
 	} else {
 		if cardMinusOne < arrayDefaultMaxSize {
-			for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+			for pointer := uint32(0); 2*pointer < uint32(len(data)); pointer += 2 {
 				rc.Add(ReadSingleShort(data, 2*pointer))
 			}
 			return nil
