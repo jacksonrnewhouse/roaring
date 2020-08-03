@@ -121,7 +121,7 @@ func (bitmap *ImmutableBitmap) getContainer(pos int) container {
 		nr := ReadSingleShort(bitmap.data, pointer)
 		pointer += 2
 		//this is dangerous, but this
-		return newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(bitmap.data[pointer : 4*nr]))
+		return newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(bitmap.data[pointer : pointer+4*uint32(nr)]))
 	} else {
 		cardMinusOne := bitmap.header[2*pos+1]
 		if cardMinusOne < arrayDefaultMaxSize {
