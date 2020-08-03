@@ -12,7 +12,7 @@ type arrayContainer struct {
 
 func (ac *arrayContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
-		ac.iorRun16(newRunContainer16CopyIv(byteSliceAsInterval16Slice(data)))
+		ac.iorRun16(newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:])))
 		if ac.getCardinality() > arrayDefaultMaxSize {
 			return ac.toBitmapContainer()
 		}
