@@ -41,7 +41,7 @@ func (bitmap *ImmutableBitmap) FromBuffer(bytes []byte) error {
 	bitmap.header = byteSliceAsUint16Slice(buf)
 
 	if bitmap.isRunBitmap == nil || bitmap.containers >= noOffsetThreshold {
-		bitmap.offsets = byteSliceAsUint32Slice(bytes[pointer : pointer*4*uint32(bitmap.containers)])
+		bitmap.offsets = byteSliceAsUint32Slice(bytes[pointer : pointer+4*uint32(bitmap.containers)])
 	} else {
 		// we traverse once to calculate offsets.
 		for i := 0; i < bitmap.containers; i++ {
@@ -142,7 +142,7 @@ func (bitmap *ImmutableBitmap) getContainer(pos int) container {
 }
 
 func (bitmap *ImmutableBitmap) getKeyAtContainerIndex(index int) uint16 {
-	return bitmap.header[index]
+	return bitmap.header[2*index]
 }
 
 func (bitmap *ImmutableBitmap) GetCardinality() uint64 {
