@@ -17,46 +17,41 @@ func (bitmap *ImmutableBitmap) FromBuffer(bytes []byte) error {
 	cookie := ReadSingleInt(bytes, pointer)
 	pointer += 4
 
-	var size uint32
-	var isRunBitmap []byte
-
 	if cookie&0x0000FFFF == serialCookie {
-		size = uint32(uint16(cookie>>16) + 1)
+		bitmap.containers = int(uint16(cookie>>16) + 1)
 		// create is-run-container bitmap
-		isRunBitmapSize := ((size) + 7) / 8
-		isRunBitmap = bytes[pointer : isRunBitmapSize+pointer]
-		pointer += isRunBitmapSize
+		isRunBitmapSize := (int(bitmap.containers) + 7) / 8
+		bitmap.isRunBitmap = bytes[pointer : isRunBitmapSize+int(pointer)]
+		pointer += uint32(isRunBitmapSize)
 	} else if cookie == serialCookieNoRunContainer {
-		size = ReadSingleInt(bytes, 4)
+		bitmap.containers = int(ReadSingleInt(bytes, 4))
 		pointer += 4
 	} else {
 		return fmt.Errorf("error in roaringArray.readFrom: did not find expected serialCookie in header")
 	}
 
-	if size > (1 << 16) {
+	if bitmap.containers > (1 << 16) {
 		return fmt.Errorf("it is logically impossible to have more than (1<<16) containers")
 	}
 
 	// descriptive header
-	buf := bytes[pointer : pointer+4*size]
-	pointer += 4 * size
+	buf := bytes[pointer : int(pointer)+4*bitmap.containers]
+	pointer += 4 * uint32(bitmap.containers)
 
-	keycard := byteSliceAsUint16Slice(buf)
+	bitmap.header = byteSliceAsUint16Slice(buf)
 
-	var offsets []uint32
-
-	if isRunBitmap == nil || size >= noOffsetThreshold {
-		offsets = byteSliceAsUint32Slice(bytes[pointer : pointer*4*size])
+	if bitmap.isRunBitmap == nil || bitmap.containers >= noOffsetThreshold {
+		bitmap.offsets = byteSliceAsUint32Slice(bytes[pointer : pointer*4*uint32(bitmap.containers)])
 	} else {
 		// we traverse once to calculate offsets.
-		for i := uint32(0); i < size; i++ {
-			offsets = append(offsets, pointer)
-			if isRunBitmap[i/8]&(1<<(i%8)) != 0 {
+		for i := 0; i < bitmap.containers; i++ {
+			bitmap.offsets = append(bitmap.offsets, pointer)
+			if bitmap.isRunBitmap[i/8]&(1<<(i%8)) != 0 {
 				// run container
 				nr := ReadSingleShort(bytes, pointer)
 				pointer += 2 + 4*uint32(nr)
 			} else {
-				card := uint32(keycard[2*i+1]) + 1
+				card := uint32(bitmap.header[2*i+1]) + 1
 				if card > arrayDefaultMaxSize {
 					pointer += 2 * arrayDefaultMaxSize
 				} else {
