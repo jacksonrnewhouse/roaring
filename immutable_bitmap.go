@@ -86,58 +86,22 @@ func (bitmap *ImmutableBitmap) isRunAtIndex(pos int) bool {
 	return bitmap.isRunBitmap != nil && bitmap.isRunBitmap[pos/8]&(1<<(pos%8)) != 0
 }
 
-//TODO: see if we can use copyOnWrite to not make copies here.
-func (bitmap *ImmutableBitmap) getContainerClone(pos int) container {
-	pointer := bitmap.getOffsetForKeyAtPosition(pos)
-	if bitmap.isRunAtIndex(pos) {
-		// run container
-		nr := ReadSingleShort(bitmap.data, pointer)
-		pointer += 2
-		return newRunContainer16CopyIv(byteSliceAsInterval16Slice(bitmap.data[pointer : 4*nr]))
-	} else {
-		cardMinusOne := bitmap.header[2*pos+1]
-		if cardMinusOne < arrayDefaultMaxSize {
-			copySlice := make([]uint16, cardMinusOne+1)
-			copy(copySlice, byteSliceAsUint16Slice(bitmap.data[pointer:pointer+2+2*uint32(cardMinusOne)]))
-			return &arrayContainer{content: copySlice}
-		} else {
-			// bitmap container
-			copySlice := make([]uint64, bitmapLongCount)
-			copy(copySlice, byteSliceAsUint64Slice(bitmap.data[pointer:pointer+containerStorageBytes]))
-
-			return &bitmapContainer{
-				cardinality: int(cardMinusOne + 1),
-				bitmap:      copySlice,
-			}
-		}
-	}
-}
-
-// this method must not leak the container into other bitmaps.
-// the primary (maybe only?) purpose is to pass to the inplace methods
-// of other containers.
 func (bitmap *ImmutableBitmap) getContainer(pos int) container {
 	pointer := bitmap.getOffsetForKeyAtPosition(pos)
 	if bitmap.isRunAtIndex(pos) {
 		// run container
 		nr := ReadSingleShort(bitmap.data, pointer)
 		pointer += 2
-		//this is dangerous, but this
 		return newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(bitmap.data[pointer : pointer+4*uint32(nr)]))
 	} else {
 		cardMinusOne := bitmap.header[2*pos+1]
 		if cardMinusOne < arrayDefaultMaxSize {
-			copySlice := make([]uint16, cardMinusOne+1)
-			copy(copySlice, byteSliceAsUint16Slice(bitmap.data[pointer:pointer+2+2*uint32(cardMinusOne)]))
-			return &arrayContainer{content: copySlice}
+			return &arrayContainer{content: byteSliceAsUint16Slice(bitmap.data[pointer : pointer+2+2*uint32(cardMinusOne)])}
 		} else {
 			// bitmap container
-			copySlice := make([]uint64, bitmapLongCount)
-			copy(copySlice, byteSliceAsUint64Slice(bitmap.data[pointer:pointer+containerStorageBytes]))
-
 			return &bitmapContainer{
 				cardinality: int(cardMinusOne + 1),
-				bitmap:      copySlice,
+				bitmap:      byteSliceAsUint64Slice(bitmap.data[pointer : pointer+containerStorageBytes]),
 			}
 		}
 	}
