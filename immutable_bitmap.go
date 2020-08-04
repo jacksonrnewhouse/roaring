@@ -188,7 +188,7 @@ main:
 					for s1 > s2 {
 						pos2++
 						if pos2 == length2 {
-							break
+							break main
 						}
 						s2 = x2.getKeyAtContainerIndex(pos2)
 					}
