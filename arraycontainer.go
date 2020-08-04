@@ -10,6 +10,48 @@ type arrayContainer struct {
 	content []uint16
 }
 
+func (ac *arrayContainer) byteAndCardinality(isRun bool, cardMinusOne uint16, data []byte) int {
+	if isRun {
+
+		pos := 0
+		answer := 0
+		maxpos := ac.getCardinality()
+		if maxpos == 0 {
+			return 0 // won't happen in actual code
+		}
+		v := ac.content[pos]
+	mainloop:
+		for _, p := range byteSliceAsInterval16Slice(data[2:]) {
+			for v < p.start {
+				pos++
+				if pos == maxpos {
+					break mainloop
+				}
+				v = ac.content[pos]
+			}
+			for v <= p.last() {
+				answer++
+				pos++
+				if pos == maxpos {
+					break mainloop
+				}
+				v = ac.content[pos]
+			}
+		}
+		return answer
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		return intersection2by2Cardinality(ac.content, byteSliceAsUint16Slice(data))
+	} else {
+		c := ac.getCardinality()
+		pos := 0
+		for k := 0; k < c; k++ {
+			v := ac.content[k]
+			pos += int((data[v>>3] >> (1 << (v % 8))) & 1)
+		}
+		return pos
+	}
+}
+
 func (ac *arrayContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
 		ac.iorRun16(newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:])))

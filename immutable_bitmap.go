@@ -153,6 +153,52 @@ func (bitmap *ImmutableBitmap) GetCardinality() uint64 {
 	return result
 }
 
+func (rb *Bitmap) AndCardinalityAgainstImmutable(x2 *ImmutableBitmap) uint64 {
+	pos1 := 0
+	pos2 := 0
+	answer := uint64(0)
+	length1 := rb.highlowcontainer.size()
+	length2 := x2.getContainerCount()
+
+main:
+	for {
+		if pos1 < length1 && pos2 < length2 {
+			s1 := rb.highlowcontainer.getKeyAtIndex(pos1)
+			s2 := x2.getKeyAtContainerIndex(pos2)
+			for {
+				if s1 == s2 {
+					c1 := rb.highlowcontainer.getContainerAtIndex(pos1)
+					answer += uint64(c1.byteAndCardinality(x2.isRunAtIndex(pos2), x2.getCardinalityMinusOneFromContainerIndex(pos2), x2.getBytesFromContainerIndex(pos2)))
+					pos1++
+					pos2++
+					if (pos1 == length1) || (pos2 == length2) {
+						break main
+					}
+					s1 = rb.highlowcontainer.getKeyAtIndex(pos1)
+					s2 = x2.getKeyAtContainerIndex(pos2)
+				} else if s1 < s2 {
+					pos1 = rb.highlowcontainer.advanceUntil(s2, pos1)
+					if pos1 == length1 {
+						break main
+					}
+					s1 = rb.highlowcontainer.getKeyAtIndex(pos1)
+				} else { //s1 > s2
+					for s1 > s2 {
+						pos2++
+						if pos2 == length2 {
+							break
+						}
+						s2 = x2.getKeyAtContainerIndex(pos2)
+					}
+				}
+			}
+		} else {
+			break
+		}
+	}
+	return answer
+}
+
 func (bitmap *Bitmap) OrAgainstImmutable(x2 *ImmutableBitmap) {
 	pos1 := 0
 	pos2 := 0

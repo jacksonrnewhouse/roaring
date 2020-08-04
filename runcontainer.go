@@ -56,6 +56,46 @@ type runContainer16 struct {
 	myOpts searchOptions `msg:"-"`
 }
 
+func (rc *runContainer16) byteAndCardinality(isRun bool, cardMinusOne uint16, data []byte) int {
+	if isRun {
+		// this shouldn't be too common.
+		return int(rc.intersectCardinality(newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data[2:]))))
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		pos := 0
+		answer := 0
+		maxpos := int(cardMinusOne + 1)
+		content := byteSliceAsUint16Slice(data)
+		if maxpos == 0 {
+			return 0 // won't happen in actual code
+		}
+		v := content[pos]
+	mainloop:
+		for _, p := range rc.iv {
+			for v < p.start {
+				pos++
+				if pos == maxpos {
+					break mainloop
+				}
+				v = content[pos]
+			}
+			for v <= p.last() {
+				answer++
+				pos++
+				if pos == maxpos {
+					break mainloop
+				}
+				v = content[pos]
+			}
+		}
+		return answer
+	} else {
+		return rc.andBitmapContainerCardinality(&bitmapContainer{
+			cardinality: int(cardMinusOne) + 1,
+			bitmap:      byteSliceAsUint64Slice(data),
+		})
+	}
+}
+
 func (rc *runContainer16) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
 		// this is safe to do in place since other doesn't escape.

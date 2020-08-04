@@ -21,6 +21,7 @@ func TestImmutableBitmap_FromBuffer(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, bitmap.GetCardinality(), immutable.GetCardinality())
+	assert.Equal(t, bitmap.GetCardinality(), bitmap.AndCardinalityAgainstImmutable(immutable))
 	orredBitmap := NewBitmap()
 	orredBitmap.OrAgainstImmutable(immutable)
 	orredBitmap.RunOptimize()

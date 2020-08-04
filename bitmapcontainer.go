@@ -12,6 +12,24 @@ type bitmapContainer struct {
 	bitmap      []uint64
 }
 
+func (b *bitmapContainer) byteAndCardinality(isRun bool, cardMinusOne uint16, data []byte) int {
+	if isRun {
+		answer := 0
+		for _, val := range byteSliceAsInterval16Slice(data[2:]) {
+			answer += b.getCardinalityInRange(uint(val.start), uint(val.last())+1)
+		}
+		return answer
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		pos := 0
+		for _, v := range byteSliceAsUint16Slice(data) {
+			pos += int(b.bitValue(v))
+		}
+		return pos
+	} else {
+		return int(popcntAndSlice(b.bitmap, byteSliceAsUint64Slice(data)))
+	}
+}
+
 func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
 		x := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data))

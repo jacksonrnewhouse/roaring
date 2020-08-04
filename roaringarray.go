@@ -60,6 +60,7 @@ type container interface {
 	// returning nil signals that the container was successfully mutated in place,
 	// so it doesn't need to be reinserted
 	iorBytes(isRun bool, cardMinusOne uint16, data []byte) container
+	byteAndCardinality(isRun bool, cardMinusOne uint16, data []byte) int
 	intersects(r container) bool // whether the two containers intersect
 	lazyOR(r container) container
 	lazyIOR(r container) container
