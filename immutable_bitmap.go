@@ -25,6 +25,7 @@ func (bitmap *ImmutableBitmap) FromBuffer(bytes []byte) error {
 		pointer += uint32(isRunBitmapSize)
 	} else if cookie == serialCookieNoRunContainer {
 		bitmap.containers = int(ReadSingleInt(bytes, 4))
+		bitmap.isRunBitmap = nil
 		pointer += 4
 	} else {
 		return fmt.Errorf("error in roaringArray.readFrom: did not find expected serialCookie in header")
@@ -43,6 +44,7 @@ func (bitmap *ImmutableBitmap) FromBuffer(bytes []byte) error {
 	if bitmap.isRunBitmap == nil || bitmap.containers >= noOffsetThreshold {
 		bitmap.offsets = byteSliceAsUint32Slice(bytes[pointer : pointer+4*uint32(bitmap.containers)])
 	} else {
+		bitmap.offsets = make([]uint32, 0, bitmap.containers)
 		// we traverse once to calculate offsets.
 		for i := 0; i < bitmap.containers; i++ {
 			bitmap.offsets = append(bitmap.offsets, pointer)
