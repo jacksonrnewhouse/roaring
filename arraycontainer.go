@@ -54,7 +54,7 @@ func (ac *arrayContainer) byteAndCardinality(isRun bool, cardMinusOne uint16, da
 
 func (ac *arrayContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
-		ac.iorRun16(newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:])))
+		ac.iorRun16(newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data[2:])))
 		if ac.getCardinality() > arrayDefaultMaxSize {
 			return ac.toBitmapContainer()
 		}
@@ -78,6 +78,27 @@ func (ac *arrayContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 				return ac.toBitmapContainer()
 			}
 			return nil
+		} else {
+			return ac.toBitmapContainer().iorBitmap(&bitmapContainer{
+				cardinality: int(cardMinusOne) + 1,
+				bitmap:      byteSliceAsUint64Slice(data),
+			})
+		}
+	}
+}
+
+func (ac *arrayContainer) orBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		return newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:])).or(ac)
+	} else {
+		if cardMinusOne < arrayDefaultMaxSize {
+			value1 := ac
+			maxPossibleCardinality := value1.getCardinality() + int(cardMinusOne) + 1
+
+			answer := newArrayContainerCapacity(maxPossibleCardinality)
+			nl := union2by2(value1.content, byteSliceAsUint16Slice(data), answer.content)
+			answer.content = answer.content[:nl] // reslice to match actual used capacity
+			return answer
 		} else {
 			return ac.toBitmapContainer().iorBitmap(&bitmapContainer{
 				cardinality: int(cardMinusOne) + 1,

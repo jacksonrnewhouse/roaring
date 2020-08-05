@@ -32,7 +32,7 @@ func (b *bitmapContainer) byteAndCardinality(isRun bool, cardMinusOne uint16, da
 
 func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
-		x := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data))
+		x := newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data))
 		if x.isFull() {
 			return x.clone()
 		}
@@ -59,6 +59,35 @@ func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 		}
 		b.computeCardinality()
 		return nil
+	}
+}
+
+func (b *bitmapContainer) orBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		x := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data))
+		return x.ior(b)
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		clone := b.clone().(*bitmapContainer)
+		for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+			vc := ReadSingleShort(data, pointer)
+			i := uint(vc) >> 6
+			bef := b.bitmap[i]
+			aft := bef | (uint64(1) << (vc % 64))
+			clone.bitmap[i] = aft
+			b.cardinality += int((bef - aft) >> 63)
+		}
+		return clone
+	} else {
+		answer := newBitmapContainer()
+		value2Bitmap := byteSliceAsUint64Slice(data)
+		for k := 0; k < len(answer.bitmap); k++ {
+			answer.bitmap[k] = b.bitmap[k] | value2Bitmap[k]
+		}
+		answer.computeCardinality()
+		if answer.isFull() {
+			return newRunContainer16Range(0, MaxUint16)
+		}
+		return answer
 	}
 }
 

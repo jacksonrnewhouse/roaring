@@ -117,6 +117,23 @@ func (rc *runContainer16) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 	}
 }
 
+func (rc *runContainer16) orBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		other := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:]))
+		return other.inplaceUnion(rc)
+	} else {
+		copy := newRunContainer16CopyIv(rc.iv)
+		if cardMinusOne < arrayDefaultMaxSize {
+			for pointer := uint32(0); 2*pointer < uint32(len(data)); pointer += 2 {
+				copy.Add(ReadSingleShort(data, 2*pointer))
+			}
+			return copy
+		}
+		return rc.orBitmapContainer(&bitmapContainer{cardinality: int(cardMinusOne) + 1,
+			bitmap: byteSliceAsUint64Slice(data)})
+	}
+}
+
 // interval16 is the internal to runContainer16
 // structure that maintains the individual [start, last]
 // closed intervals.

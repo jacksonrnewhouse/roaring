@@ -193,10 +193,16 @@ main:
 				}
 				s2 = x2.getKeyAtContainerIndex(pos2)
 			} else {
-				writableContainer := bitmap.highlowcontainer.getWritableContainerAtIndex(pos1)
-				newContainer := writableContainer.iorBytes(x2.isRunAtIndex(pos2), x2.getCardinalityMinusOneFromContainerIndex(pos2), x2.getBytesFromContainerIndex(pos2))
-				if newContainer != nil {
-					bitmap.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, newContainer, false)
+				if bitmap.highlowcontainer.needCopyOnWrite[pos1] {
+					bitmap.highlowcontainer.containers[pos1] = bitmap.highlowcontainer.containers[pos1].orBytes(
+						x2.isRunAtIndex(pos2), x2.getCardinalityMinusOneFromContainerIndex(pos2), x2.getBytesFromContainerIndex(pos2))
+					bitmap.highlowcontainer.needCopyOnWrite[pos1] = false
+				} else {
+					writableContainer := bitmap.highlowcontainer.containers[pos1]
+					newContainer := writableContainer.iorBytes(x2.isRunAtIndex(pos2), x2.getCardinalityMinusOneFromContainerIndex(pos2), x2.getBytesFromContainerIndex(pos2))
+					if newContainer != nil {
+						bitmap.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, newContainer, false)
+					}
 				}
 				pos1++
 				pos2++
