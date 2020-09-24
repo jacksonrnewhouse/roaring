@@ -66,7 +66,7 @@ func (ac *arrayContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 			len2 := int(cardMinusOne) + 1
 			maxPossibleCardinality := len1 + len2
 			if maxPossibleCardinality > cap(value1.content) {
-				newcontent := make([]uint16, 0, maxPossibleCardinality)
+				newcontent := make([]uint16, 0, 2*maxPossibleCardinality)
 				copy(newcontent[len2:maxPossibleCardinality], ac.content[0:len1])
 				ac.content = newcontent
 			} else {
