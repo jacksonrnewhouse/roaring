@@ -109,6 +109,16 @@ func (rb *Bitmap) FromBuffer(buf []byte) (p int64, err error) {
 	return
 }
 
+func (rb *Bitmap) FromBufferWithFilter(buf []byte, filter *Bitmap) (p int64, err error) {
+	stream := byteBufferPool.Get().(*byteBuffer)
+	stream.reset(buf)
+
+	p, err = rb.highlowcontainer.readFromWithFilterArray(stream, filter)
+	byteBufferPool.Put(stream)
+
+	return
+}
+
 var (
 	byteBufferPool = sync.Pool{
 		New: func() interface{} {
