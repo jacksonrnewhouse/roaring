@@ -74,7 +74,7 @@ func (b *bitmapContainer) orBytes(isRun bool, cardMinusOne uint16, data []byte) 
 			bef := b.bitmap[i]
 			aft := bef | (uint64(1) << (vc % 64))
 			clone.bitmap[i] = aft
-			b.cardinality += int((bef - aft) >> 63)
+			clone.cardinality += int((bef - aft) >> 63)
 		}
 		return clone
 	} else {
