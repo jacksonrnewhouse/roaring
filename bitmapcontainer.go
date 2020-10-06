@@ -32,7 +32,7 @@ func (b *bitmapContainer) byteAndCardinality(isRun bool, cardMinusOne uint16, da
 
 func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
-		x := newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data))
+		x := newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data[2:]))
 		if x.isFull() {
 			return x.clone()
 		}
@@ -64,7 +64,7 @@ func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 
 func (b *bitmapContainer) orBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
-		x := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data))
+		x := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:]))
 		return x.ior(b)
 	} else if cardMinusOne < arrayDefaultMaxSize {
 		clone := b.clone().(*bitmapContainer)
