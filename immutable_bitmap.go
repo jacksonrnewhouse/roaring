@@ -165,6 +165,82 @@ main:
 	return answer
 }
 
+func (bitmap *Bitmap) OrAgainstImmutableWithFilter(x2 *ImmutableBitmap, filter *Bitmap) {
+	pos1 := 0
+	pos2 := 0
+	pos3 := 0
+	length1 := bitmap.highlowcontainer.size()
+	length2 := x2.getContainerCount()
+	length3 := filter.highlowcontainer.size()
+main:
+	for (pos1 < length1) && (pos2 < length2) && (pos3 < length3) {
+		s1 := bitmap.highlowcontainer.getKeyAtIndex(pos1)
+		s2 := x2.getKeyAtContainerIndex(pos2)
+		s3 := filter.highlowcontainer.getKeyAtIndex(pos3)
+
+		for {
+			if s2 < s3 {
+				pos2++
+				if pos2 == length2 {
+					break main
+				}
+				s2 = x2.getKeyAtContainerIndex(pos2)
+			} else if s3 < s2 {
+				pos3++
+				if pos3 == length3 {
+					break
+				}
+				s3 = filter.highlowcontainer.getKeyAtIndex(pos3)
+			} else if s1 < s2 {
+				pos1++
+				if pos1 == length1 {
+					break main
+				}
+				s1 = bitmap.highlowcontainer.getKeyAtIndex(pos1)
+			} else if s1 > s2 {
+				bitmap.highlowcontainer.insertNewKeyValueAt(pos1, s2, x2.getContainer(pos2))
+				bitmap.highlowcontainer.needCopyOnWrite[pos1] = true
+				pos1++
+				length1++
+				pos2++
+				if pos2 == length2 {
+					break main
+				}
+				s2 = x2.getKeyAtContainerIndex(pos2)
+			} else {
+				if bitmap.highlowcontainer.needCopyOnWrite[pos1] {
+					bitmap.highlowcontainer.containers[pos1] = bitmap.highlowcontainer.containers[pos1].orBytes(
+						x2.isRunAtIndex(pos2), x2.getCardinalityMinusOneFromContainerIndex(pos2), x2.getBytesFromContainerIndex(pos2))
+					bitmap.highlowcontainer.needCopyOnWrite[pos1] = false
+				} else {
+					writableContainer := bitmap.highlowcontainer.containers[pos1]
+					newContainer := writableContainer.iorBytes(x2.isRunAtIndex(pos2), x2.getCardinalityMinusOneFromContainerIndex(pos2), x2.getBytesFromContainerIndex(pos2))
+					if newContainer != nil {
+						bitmap.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, newContainer, false)
+					}
+				}
+				pos1++
+				pos2++
+				if (pos1 == length1) || (pos2 == length2) {
+					break main
+				}
+				s1 = bitmap.highlowcontainer.getKeyAtIndex(pos1)
+				s2 = x2.getKeyAtContainerIndex(pos2)
+			}
+		}
+	}
+	if pos1 == length1 {
+		for pos2 < length2 {
+			s2 := x2.getKeyAtContainerIndex(pos2)
+			bitmap.highlowcontainer.insertNewKeyValueAt(pos1, s2, x2.getContainer(pos2))
+			bitmap.highlowcontainer.needCopyOnWrite[pos1] = true
+			pos1++
+			length1++
+			pos2++
+		}
+	}
+}
+
 func (bitmap *Bitmap) OrAgainstImmutable(x2 *ImmutableBitmap) {
 	pos1 := 0
 	pos2 := 0
