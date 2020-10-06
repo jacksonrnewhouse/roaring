@@ -55,7 +55,7 @@ func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 		return nil
 	} else {
 		for k := 0; k < len(b.bitmap); k++ {
-			b.bitmap[k] |= ReadSingleLong(data, 4*uint32(k))
+			b.bitmap[k] |= ReadSingleLong(data, 8*uint32(k))
 		}
 		b.computeCardinality()
 		return nil
