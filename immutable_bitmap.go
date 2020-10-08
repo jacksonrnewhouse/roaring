@@ -2,6 +2,11 @@ package roaring
 
 import (
 	"fmt"
+	"unsafe"
+)
+
+const (
+	containerStorageBytes = 8192
 )
 
 type ImmutableBitmap struct {
@@ -506,4 +511,16 @@ func (bitmap *ImmutableBitmap) getBytesFromContainerIndex(pos2 int) []byte {
 			return bitmap.data[offset : offset+containerStorageBytes]
 		}
 	}
+}
+
+func ReadSingleShort(data []byte, pointer uint32) uint16 {
+	return *(*uint16)(unsafe.Pointer(&data[pointer]))
+}
+
+func ReadSingleInt(data []byte, pointer uint32) uint32 {
+	return *(*uint32)(unsafe.Pointer(&data[pointer]))
+}
+
+func ReadSingleLong(data []byte, pointer uint32) uint64 {
+	return *(*uint64)(unsafe.Pointer(&data[pointer]))
 }

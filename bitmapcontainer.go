@@ -64,14 +64,15 @@ func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 
 func (b *bitmapContainer) orBytes(isRun bool, cardMinusOne uint16, data []byte) container {
 	if isRun {
-		x := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:]))
-		return x.ior(b)
+		baseIntervalSlice := byteSliceAsInterval16Slice(data[2:])
+		x := newRunContainer16CopyIv(baseIntervalSlice)
+		return x.ior(b).toEfficientContainer()
 	} else if cardMinusOne < arrayDefaultMaxSize {
 		clone := b.clone().(*bitmapContainer)
 		for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
 			vc := ReadSingleShort(data, pointer)
 			i := uint(vc) >> 6
-			bef := b.bitmap[i]
+			bef := clone.bitmap[i]
 			aft := bef | (uint64(1) << (vc % 64))
 			clone.bitmap[i] = aft
 			clone.cardinality += int((bef - aft) >> 63)

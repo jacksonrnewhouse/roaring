@@ -45,8 +45,9 @@ func (ac *arrayContainer) byteAndCardinality(isRun bool, cardMinusOne uint16, da
 		c := ac.getCardinality()
 		pos := 0
 		for k := 0; k < c; k++ {
-			v := ac.content[k]
-			pos += int((data[v>>3] >> (1 << (v % 8))) & 1)
+			v := uint32(ac.content[k])
+			longValue := ReadSingleLong(data, (v>>6)*8)
+			pos += int((longValue >> (v & 63)) & 1)
 		}
 		return pos
 	}

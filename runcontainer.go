@@ -106,8 +106,9 @@ func (rc *runContainer16) iorBytes(isRun bool, cardMinusOne uint16, data []byte)
 		return nil
 	} else {
 		if cardMinusOne < arrayDefaultMaxSize {
-			for pointer := uint32(0); 2*pointer < uint32(len(data)); pointer += 2 {
-				rc.Add(ReadSingleShort(data, 2*pointer))
+			for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+				short := ReadSingleShort(data, pointer)
+				rc.Add(short)
 			}
 			return nil
 		}
@@ -124,8 +125,9 @@ func (rc *runContainer16) orBytes(isRun bool, cardMinusOne uint16, data []byte) 
 	} else {
 		copy := newRunContainer16CopyIv(rc.iv)
 		if cardMinusOne < arrayDefaultMaxSize {
-			for pointer := uint32(0); 2*pointer < uint32(len(data)); pointer += 2 {
-				copy.Add(ReadSingleShort(data, 2*pointer))
+			for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+				short := ReadSingleShort(data, pointer)
+				copy.Add(short)
 			}
 			return copy
 		}
@@ -2096,6 +2098,9 @@ func (rc *runContainer16) iaddRange(firstOfRange, endx int) container {
 
 	if firstOfRange >= endx {
 		panic(fmt.Sprintf("invalid %v = endx >= firstOfRange", endx))
+	}
+	if endx > (1 << 16) {
+		panic(fmt.Sprintf("invalid %v = endx >= 1<<16", endx))
 	}
 	addme := newRunContainer16TakeOwnership([]interval16{
 		{
