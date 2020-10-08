@@ -90,7 +90,7 @@ func byteSliceAsUint16Slice(slice []byte) (result []uint16) { // here we create 
 }
 
 func byteSliceAsUint32Slice(slice []byte) (result []uint32) { // here we create a new slice holder
-	if len(slice)%2 != 0 {
+	if len(slice)%4 != 0 {
 		panic("Slice size should be divisible by 4")
 	}
 	// reference: https://go101.org/article/unsafe.html
