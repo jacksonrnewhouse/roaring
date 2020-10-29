@@ -771,3 +771,19 @@ func BenchmarkUnserializeFromBuffer(b *testing.B) {
 		})
 	}
 }
+
+func BenchmarkReadArrayContainerBitmap(b *testing.B) {
+	bitmap := NewBitmap()
+	val := uint32(0)
+	for i := 0; i < 100000; i++ {
+		bitmap.Add(val)
+		val += 1 + uint32(rand.Intn(128))
+	}
+	bytes, _ := bitmap.ToBytes()
+	receiver := NewBitmap()
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		receiver.FromBuffer(bytes)
+	}
+}
