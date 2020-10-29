@@ -6,7 +6,26 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"reflect"
+	"unsafe"
+	"runtime"
 )
+
+var isNativeLittleEndian bool
+
+func init() {
+	buf := [2]byte{}
+	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
+
+	switch buf {
+	case [2]byte{0xCD, 0xAB}:
+		isNativeLittleEndian = true
+	case [2]byte{0xAB, 0xCD}:
+		isNativeLittleEndian = false
+	default:
+		panic("Could not determine native endianness.")
+	}
+}
 
 func (b *arrayContainer) writeTo(stream io.Writer) (int, error) {
 	buf := make([]byte, 2*len(b.content))
@@ -84,18 +103,34 @@ func uint16SliceAsByteSlice(slice []uint16) []byte {
 	return by
 }
 
-func byteSliceAsUint16Slice(slice []byte) []uint16 {
+func byteSliceAsUint16Slice(slice []byte) (result []uint16) {
 	if len(slice)%2 != 0 {
 		panic("Slice size should be divisible by 2")
 	}
+	if isNativeLittleEndian {
+		// make a new slice header
+		bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+		rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
 
-	b := make([]uint16, len(slice)/2)
+		// transfer the data from the given slice to a new variable (our result)
+		rHeader.Data = bHeader.Data
+		rHeader.Len = bHeader.Len / 2
+		rHeader.Cap = bHeader.Cap / 2
 
-	for i := range b {
-		b[i] = binary.LittleEndian.Uint16(slice[2*i:])
+		// instantiate result and use KeepAlive so data isn't unmapped.
+		runtime.KeepAlive(&slice) // it is still crucial, GC can free it)
+
+		// return result
+		return
 	}
 
-	return b
+	result = make([]uint16, len(slice)/2)
+
+	for i := range result {
+		result[i] = binary.LittleEndian.Uint16(slice[2*i:])
+	}
+
+	return
 }
 
 func byteSliceAsUint64Slice(slice []byte) []uint64 {
@@ -131,3 +166,4 @@ func byteSliceAsInterval16Slice(byteSlice []byte) []interval16 {
 
 	return intervalSlice
 }
+
