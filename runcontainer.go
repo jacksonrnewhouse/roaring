@@ -56,6 +56,86 @@ type runContainer16 struct {
 	myOpts searchOptions `msg:"-"`
 }
 
+func (rc *runContainer16) byteAndCardinality(isRun bool, cardMinusOne uint16, data []byte) int {
+	if isRun {
+		// this shouldn't be too common.
+		return int(rc.intersectCardinality(newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data[2:]))))
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		pos := 0
+		answer := 0
+		maxpos := int(cardMinusOne + 1)
+		content := byteSliceAsUint16Slice(data)
+		if maxpos == 0 {
+			return 0 // won't happen in actual code
+		}
+		v := content[pos]
+	mainloop:
+		for _, p := range rc.iv {
+			for v < p.start {
+				pos++
+				if pos == maxpos {
+					break mainloop
+				}
+				v = content[pos]
+			}
+			for v <= p.last() {
+				answer++
+				pos++
+				if pos == maxpos {
+					break mainloop
+				}
+				v = content[pos]
+			}
+		}
+		return answer
+	} else {
+		return rc.andBitmapContainerCardinality(&bitmapContainer{
+			cardinality: int(cardMinusOne) + 1,
+			bitmap:      byteSliceAsUint64Slice(data),
+		})
+	}
+}
+
+func (rc *runContainer16) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		// this is safe to do in place since other doesn't escape.
+		// dependent on lots of implementation details.
+		other := newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data[2:]))
+		rc.inplaceUnion(other)
+		// inplaceUnion never alters rc
+		return nil
+	} else {
+		if cardMinusOne < arrayDefaultMaxSize {
+			for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+				short := ReadSingleShort(data, pointer)
+				rc.Add(short)
+			}
+			return nil
+		}
+		rc.iorBitmapContainer(&bitmapContainer{cardinality: int(cardMinusOne) + 1,
+			bitmap: byteSliceAsUint64Slice(data)})
+		return nil
+	}
+}
+
+func (rc *runContainer16) orBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		other := newRunContainer16CopyIv(byteSliceAsInterval16Slice(data[2:]))
+		return other.inplaceUnion(rc)
+	} else {
+		copy := newRunContainer16CopyIv(rc.iv)
+		if cardMinusOne < arrayDefaultMaxSize {
+			for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+				short := ReadSingleShort(data, pointer)
+				copy.Add(short)
+			}
+			return copy
+		}
+		return rc.orBitmapContainer(&bitmapContainer{cardinality: int(cardMinusOne) + 1,
+			bitmap: byteSliceAsUint64Slice(data)})
+	}
+}
+
 // interval16 is the internal to runContainer16
 // structure that maintains the individual [start, last]
 // closed intervals.
@@ -2018,6 +2098,9 @@ func (rc *runContainer16) iaddRange(firstOfRange, endx int) container {
 
 	if firstOfRange >= endx {
 		panic(fmt.Sprintf("invalid %v = endx >= firstOfRange", endx))
+	}
+	if endx > (1 << 16) {
+		panic(fmt.Sprintf("invalid %v = endx >= 1<<16", endx))
 	}
 	addme := newRunContainer16TakeOwnership([]interval16{
 		{

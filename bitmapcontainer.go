@@ -12,6 +12,86 @@ type bitmapContainer struct {
 	bitmap      []uint64
 }
 
+func (b *bitmapContainer) byteAndCardinality(isRun bool, cardMinusOne uint16, data []byte) int {
+	if isRun {
+		answer := 0
+		for _, val := range byteSliceAsInterval16Slice(data[2:]) {
+			answer += b.getCardinalityInRange(uint(val.start), uint(val.last())+1)
+		}
+		return answer
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		pos := 0
+		for _, v := range byteSliceAsUint16Slice(data) {
+			pos += int(b.bitValue(v))
+		}
+		return pos
+	} else {
+		return int(popcntAndSlice(b.bitmap, byteSliceAsUint64Slice(data)))
+	}
+}
+
+func (b *bitmapContainer) iorBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		x := newRunContainer16TakeOwnership(byteSliceAsInterval16Slice(data[2:]))
+		if x.isFull() {
+			return x.clone()
+		}
+		for i := range x.iv {
+			b.iaddRange(int(x.iv[i].start), int(x.iv[i].last())+1)
+		}
+		if b.isFull() {
+			return newRunContainer16Range(0, MaxUint16)
+		}
+		return nil
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+			vc := ReadSingleShort(data, pointer)
+			i := uint(vc) >> 6
+			bef := b.bitmap[i]
+			aft := bef | (uint64(1) << (vc % 64))
+			b.bitmap[i] = aft
+			b.cardinality += int((bef - aft) >> 63)
+		}
+		return nil
+	} else {
+		for k := 0; k < len(b.bitmap); k++ {
+			b.bitmap[k] |= ReadSingleLong(data, 8*uint32(k))
+		}
+		b.computeCardinality()
+		return nil
+	}
+}
+
+func (b *bitmapContainer) orBytes(isRun bool, cardMinusOne uint16, data []byte) container {
+	if isRun {
+		baseIntervalSlice := byteSliceAsInterval16Slice(data[2:])
+		x := newRunContainer16CopyIv(baseIntervalSlice)
+		return x.ior(b).toEfficientContainer()
+	} else if cardMinusOne < arrayDefaultMaxSize {
+		clone := b.clone().(*bitmapContainer)
+		for pointer := uint32(0); pointer < uint32(len(data)); pointer += 2 {
+			vc := ReadSingleShort(data, pointer)
+			i := uint(vc) >> 6
+			bef := clone.bitmap[i]
+			aft := bef | (uint64(1) << (vc % 64))
+			clone.bitmap[i] = aft
+			clone.cardinality += int((bef - aft) >> 63)
+		}
+		return clone
+	} else {
+		answer := newBitmapContainer()
+		value2Bitmap := byteSliceAsUint64Slice(data)
+		for k := 0; k < len(answer.bitmap); k++ {
+			answer.bitmap[k] = b.bitmap[k] | value2Bitmap[k]
+		}
+		answer.computeCardinality()
+		if answer.isFull() {
+			return newRunContainer16Range(0, MaxUint16)
+		}
+		return answer
+	}
+}
+
 func (bc bitmapContainer) String() string {
 	var s string
 	for it := bc.getShortIterator(); it.hasNext(); {
