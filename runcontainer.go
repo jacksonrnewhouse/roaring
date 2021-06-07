@@ -2185,14 +2185,88 @@ func (rc *runContainer16) ior(a container) container {
 	panic("unsupported container type")
 }
 
+//TODO: right place to put this?
+const runGrowSpan = 64
+
 func (rc *runContainer16) inplaceUnion(rc2 *runContainer16) container {
-	for _, p := range rc2.iv {
-		last := int(p.last())
-		for i := int(p.start); i <= last; i++ {
-			rc.Add(uint16(i))
+	if rc2.isEmpty() {
+		return rc
+	}
+	if rc.isEmpty() {
+		return rc2.clone()
+	}
+	pos1 := 0
+	pos2 := 0
+	writePointer := 0
+	length1 := len(rc.iv)
+	length2 := len(rc2.iv)
+	var previousInterval interval16
+	if rc.iv[0].start <= rc2.iv[0].start {
+		previousInterval = rc.iv[0]
+		pos1++
+	} else {
+		previousInterval = rc2.iv[0]
+		pos2++
+	}
+	for pos1 < length1 || pos2 < length2 {
+		if pos1 < length1 {
+			r1 := rc.iv[pos1]
+			if r1.start <= previousInterval.last() ||
+				r1.start == previousInterval.last()+1 {
+				if r1.last() > previousInterval.last() {
+					previousInterval.length = r1.last() - previousInterval.start
+				}
+				pos1++
+				continue
+			}
+		}
+		if pos2 < length2 {
+			r2 := rc2.iv[pos2]
+			if r2.start <= previousInterval.last() ||
+				r2.start == previousInterval.last()+1 {
+				if r2.last() > previousInterval.last() {
+					previousInterval.length = r2.last() - previousInterval.start
+				}
+				pos2++
+				continue
+			}
+		}
+		if pos1 == writePointer {
+			rc.growBackingSliceCapacity(length1 + runGrowSpan)
+			rc.iv = rc.iv[:length1+runGrowSpan]
+			copy(rc.iv[pos1+runGrowSpan:], rc.iv[pos1:length1])
+			pos1 += runGrowSpan
+			length1 += runGrowSpan
+		}
+		rc.iv[writePointer] = previousInterval
+		writePointer++
+		if pos2 == length2 || pos1 < length1 && rc.iv[pos1].start < rc2.iv[pos2].start {
+			previousInterval = rc.iv[pos1]
+			pos1++
+		} else {
+			previousInterval = rc2.iv[pos2]
+			pos2++
 		}
 	}
+	if pos1 == writePointer {
+		rc.growBackingSliceCapacity(length1 + runGrowSpan)
+		rc.iv = rc.iv[:length1+runGrowSpan]
+		copy(rc.iv[pos1+runGrowSpan:], rc.iv[pos1:length1])
+		pos1 += runGrowSpan
+		length1 += runGrowSpan
+	}
+	rc.iv[writePointer] = previousInterval
+	writePointer++
+	rc.iv = rc.iv[:writePointer]
 	return rc
+}
+
+func (rc *runContainer16) growBackingSliceCapacity(capacity int) {
+	if cap(rc.iv) < capacity {
+		biggerSlice := make([]interval16, capacity)
+		copy(biggerSlice, rc.iv)
+		rc.iv = biggerSlice[:len(rc.iv)]
+	}
 }
 
 func (rc *runContainer16) iorBitmapContainer(bc *bitmapContainer) container {
